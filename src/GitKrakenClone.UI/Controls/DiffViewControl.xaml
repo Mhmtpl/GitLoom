@@ -1,0 +1,276 @@
+<UserControl x:Class="GitKrakenClone.UI.Controls.DiffViewControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:GitKrakenClone.UI.Controls"
+             xmlns:models="clr-namespace:GitKrakenClone.Core.Models;assembly=GitKrakenClone.Core"
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="400">
+    <UserControl.Resources>
+        <!-- Premium dark theme palette -->
+        <SolidColorBrush x:Key="EditorBackground" Color="#0C0C0E" />
+        <SolidColorBrush x:Key="LineNumBackground" Color="#121214" />
+        
+        <SolidColorBrush x:Key="HeaderBackground" Color="#1D1D2C" />
+        <SolidColorBrush x:Key="HeaderForeground" Color="#A78BFA" />
+        
+        <SolidColorBrush x:Key="AddedBackground" Color="#0F241A" />
+        <SolidColorBrush x:Key="AddedForeground" Color="#4ADE80" />
+        
+        <SolidColorBrush x:Key="DeletedBackground" Color="#2D1317" />
+        <SolidColorBrush x:Key="DeletedForeground" Color="#F87171" />
+        
+        <SolidColorBrush x:Key="ContextForeground" Color="#E4E4E7" />
+        <SolidColorBrush x:Key="LineNumberForeground" Color="#52525B" />
+        
+        <!-- Files list styling -->
+        <Style x:Key="FileListBoxStyle" TargetType="ListBox">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Padding" Value="0" />
+            <Style.Resources>
+                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#27272A" />
+                <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#1F1F22" />
+            </Style.Resources>
+        </Style>
+    </UserControl.Resources>
+    
+    <Grid Background="#151517">
+        <Grid.RowDefinitions>
+            <!-- 0: Files Changed Title -->
+            <RowDefinition Height="Auto" />
+            <!-- 1: Files List Box (resizable) -->
+            <RowDefinition Height="120" MinHeight="80" MaxHeight="300" />
+            <!-- 2: Splitter -->
+            <RowDefinition Height="4" />
+            <!-- 3: Diff View Lines -->
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- 0. Files Header -->
+        <Border Grid.Row="0" Background="#1E1E20" Padding="12,8" BorderBrush="#27272A" BorderThickness="0,0,0,1">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock Text="FILES CHANGED" Foreground="#A1A1AA" FontSize="10" FontWeight="Bold" />
+                <Border Background="#27272A" CornerRadius="8" Padding="6,1" Margin="8,0,0,0" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding SelectedFileDiffs.Count, FallbackValue=0}" Foreground="White" FontSize="10" FontWeight="Bold" />
+                </Border>
+            </StackPanel>
+        </Border>
+
+        <!-- 1. Files List -->
+        <ListBox Grid.Row="1"
+                 ItemsSource="{Binding SelectedFileDiffs}"
+                 SelectedItem="{Binding SelectedFile}"
+                 Style="{StaticResource FileListBoxStyle}"
+                 Background="#151517"
+                 ScrollViewer.VerticalScrollBarVisibility="Auto">
+            <ListBox.ItemContainerStyle>
+                <Style TargetType="ListBoxItem">
+                    <Setter Property="Padding" Value="10,6" />
+                    <Setter Property="Margin" Value="2,1" />
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                    <Setter Property="Background" Value="Transparent" />
+                    <Setter Property="BorderThickness" Value="0" />
+                    <Setter Property="Cursor" Value="Hand" />
+                    <!-- Rounded corners on hover/select -->
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="ListBoxItem">
+                                <Border x:Name="Bd" 
+                                        Background="{TemplateBinding Background}" 
+                                        BorderBrush="{TemplateBinding BorderBrush}" 
+                                        BorderThickness="{TemplateBinding BorderThickness}" 
+                                        Padding="{TemplateBinding Padding}" 
+                                        CornerRadius="4">
+                                    <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                                                      VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="Bd" Property="Background" Value="#222226" />
+                                    </Trigger>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter TargetName="Bd" Property="Background" Value="#2A2A30" />
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </ListBox.ItemContainerStyle>
+            <ListBox.ItemTemplate>
+                <DataTemplate DataType="{x:Type models:FileDiff}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Status Badge (Clean circle with character icon) -->
+                        <Border Grid.Column="0" Width="18" Height="18" CornerRadius="9" Margin="0,0,10,0" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="Background" Value="#2A2A2F" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Status}" Value="Added">
+                                            <Setter Property="Background" Value="#153020" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding Status}" Value="Deleted">
+                                            <Setter Property="Background" Value="#3C1A1D" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding Status}" Value="Modified">
+                                            <Setter Property="Background" Value="#352815" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <TextBlock FontSize="9" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Text" Value="M" />
+                                        <Setter Property="Foreground" Value="#EAB308" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Status}" Value="Added">
+                                                <Setter Property="Text" Value="A" />
+                                                <Setter Property="Foreground" Value="#4ADE80" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Status}" Value="Deleted">
+                                                <Setter Property="Text" Value="D" />
+                                                <Setter Property="Foreground" Value="#F87171" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </Border>
+
+                        <!-- File Name / Path -->
+                        <TextBlock Grid.Column="1" 
+                                   Text="{Binding Path}" 
+                                   Foreground="White" 
+                                   FontSize="12" 
+                                   VerticalAlignment="Center" 
+                                   TextTrimming="CharacterEllipsis" />
+                    </Grid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+
+        <!-- 2. Grid Splitter -->
+        <GridSplitter Grid.Row="2" 
+                      Height="4" 
+                      HorizontalAlignment="Stretch" 
+                      VerticalAlignment="Stretch" 
+                      Background="#27272A" 
+                      Cursor="SizeNS" />
+
+        <!-- 3. Diff View Lines Container -->
+        <Grid Grid.Row="3" Background="{StaticResource EditorBackground}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <!-- Current File Header inside Editor -->
+            <Border Grid.Row="0" Background="#151517" Padding="12,6" BorderBrush="#27272A" BorderThickness="0,0,0,1">
+                <TextBlock Text="{Binding SelectedFile.Path, FallbackValue='Select a file'}" 
+                           Foreground="#D4D4D8" 
+                           FontSize="11" 
+                           FontFamily="Consolas" />
+            </Border>
+
+            <!-- Lines List Box -->
+            <ListBox Grid.Row="1"
+                     ItemsSource="{Binding SelectedFileLines}"
+                     Background="Transparent"
+                     BorderThickness="0"
+                     ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                     ScrollViewer.VerticalScrollBarVisibility="Auto"
+                     VirtualizingPanel.IsVirtualizing="True"
+                     VirtualizingPanel.VirtualizationMode="Recycling">
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="Padding" Value="0" />
+                        <Setter Property="Margin" Value="0" />
+                        <Setter Property="BorderThickness" Value="0" />
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                        <Setter Property="Background" Value="Transparent" />
+                        <!-- Disable standard select colors so diff colors stay visible -->
+                        <Style.Resources>
+                            <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#252528" />
+                            <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#1A1A1C" />
+                        </Style.Resources>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Type}" Value="{x:Static models:DiffLineType.Added}">
+                                <Setter Property="Background" Value="{StaticResource AddedBackground}" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Type}" Value="{x:Static models:DiffLineType.Deleted}">
+                                <Setter Property="Background" Value="{StaticResource DeletedBackground}" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Type}" Value="{x:Static models:DiffLineType.Header}">
+                                <Setter Property="Background" Value="{StaticResource HeaderBackground}" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </ListBox.ItemContainerStyle>
+                <ListBox.ItemTemplate>
+                    <DataTemplate DataType="{x:Type models:DiffLine}">
+                        <Grid Height="19">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="42" />
+                                <ColumnDefinition Width="42" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Old Line Number -->
+                            <Border Grid.Column="0" Background="{StaticResource LineNumBackground}" BorderBrush="#1C1C1E" BorderThickness="0,0,1,0" Padding="0,0,6,0">
+                                <TextBlock Text="{Binding OldLineNumber}" 
+                                           Foreground="{StaticResource LineNumberForeground}" 
+                                           FontSize="10.5" 
+                                           FontFamily="Consolas" 
+                                           TextAlignment="Right" 
+                                           VerticalAlignment="Center" />
+                            </Border>
+
+                            <!-- New Line Number -->
+                            <Border Grid.Column="1" Background="{StaticResource LineNumBackground}" BorderBrush="#1C1C1E" BorderThickness="0,0,1,0" Padding="0,0,6,0">
+                                <TextBlock Text="{Binding NewLineNumber}" 
+                                           Foreground="{StaticResource LineNumberForeground}" 
+                                           FontSize="10.5" 
+                                           FontFamily="Consolas" 
+                                           TextAlignment="Right" 
+                                           VerticalAlignment="Center" />
+                            </Border>
+
+                            <!-- Line Content -->
+                            <TextBlock Grid.Column="2" 
+                                       Text="{Binding Content}" 
+                                       FontFamily="Consolas" 
+                                       FontSize="11" 
+                                       VerticalAlignment="Center"
+                                       Margin="6,0,0,0">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Foreground" Value="{StaticResource ContextForeground}" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Type}" Value="{x:Static models:DiffLineType.Added}">
+                                                <Setter Property="Foreground" Value="{StaticResource AddedForeground}" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Type}" Value="{x:Static models:DiffLineType.Deleted}">
+                                                <Setter Property="Foreground" Value="{StaticResource DeletedForeground}" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Type}" Value="{x:Static models:DiffLineType.Header}">
+                                                <Setter Property="Foreground" Value="{StaticResource HeaderForeground}" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </Grid>
+    </Grid>
+</UserControl>
