@@ -399,4 +399,29 @@ public class LibGitService : IGitService
     {
         RunGitCommand("fetch");
     }
+
+    public void Checkout(string branchName)
+    {
+        RunGitCommand($"checkout {branchName}");
+    }
+
+    public void Merge(string sourceBranchName)
+    {
+        RunGitCommand($"merge {sourceBranchName}");
+    }
+
+    public void Rebase(string upstreamBranchName, string branchName)
+    {
+        RunGitCommand($"rebase {upstreamBranchName} {branchName}");
+    }
+
+    public void CreateBranch(string branchName, string startPointSha)
+    {
+        RunGitCommand($"branch {branchName} {startPointSha}");
+    }
+
+    public void DeleteBranch(string branchName)
+    {
+        RunGitCommand($"branch -d {branchName}");
+    }
 }

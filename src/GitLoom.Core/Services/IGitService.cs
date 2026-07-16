@@ -28,4 +28,11 @@ public interface IGitService : IDisposable
     void Push();
     void Pull();
     void Fetch();
+    
+    // Core Git Actions
+    void Checkout(string branchName);
+    void Merge(string sourceBranchName);
+    void Rebase(string upstreamBranchName, string branchName);
+    void CreateBranch(string branchName, string startPointSha);
+    void DeleteBranch(string branchName);
 }

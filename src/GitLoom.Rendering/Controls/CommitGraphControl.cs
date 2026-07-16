@@ -27,6 +27,11 @@ public class CommitGraphControl : SKElement
     private static readonly SKColor DarkBgColor = SKColor.Parse("#1E1E24");
     private static readonly SKColor SelectedRingColor = SKColor.Parse("#FFFFFF");
 
+    private CommitNodeLayout? _dragStartNode;
+    private Point _dragStartPoint;
+    private Point _dragCurrentPoint;
+    private bool _isDragging;
+
     // Dependency Properties
     public static readonly DependencyProperty LayoutProperty =
         DependencyProperty.Register(nameof(Layout), typeof(CommitGraphLayout), typeof(CommitGraphControl),
@@ -60,10 +65,70 @@ public class CommitGraphControl : SKElement
         DependencyProperty.Register(nameof(HeadSha), typeof(string), typeof(CommitGraphControl),
             new PropertyMetadata(null, OnVisualPropertyChanged));
 
+    public static readonly DependencyProperty CommitsProperty =
+        DependencyProperty.Register(nameof(Commits), typeof(System.Collections.IEnumerable), typeof(CommitGraphControl),
+            new PropertyMetadata(null));
+
+    public static readonly DependencyProperty CheckoutBranchCommandProperty =
+        DependencyProperty.Register(nameof(CheckoutBranchCommand), typeof(ICommand), typeof(CommitGraphControl),
+            new PropertyMetadata(null));
+
+    public static readonly DependencyProperty MergeBranchCommandProperty =
+        DependencyProperty.Register(nameof(MergeBranchCommand), typeof(ICommand), typeof(CommitGraphControl),
+            new PropertyMetadata(null));
+
+    public static readonly DependencyProperty RebaseBranchCommandProperty =
+        DependencyProperty.Register(nameof(RebaseBranchCommand), typeof(ICommand), typeof(CommitGraphControl),
+            new PropertyMetadata(null));
+
+    public static readonly DependencyProperty CreateBranchCommandProperty =
+        DependencyProperty.Register(nameof(CreateBranchCommand), typeof(ICommand), typeof(CommitGraphControl),
+            new PropertyMetadata(null));
+
+    public static readonly DependencyProperty DeleteBranchCommandProperty =
+        DependencyProperty.Register(nameof(DeleteBranchCommand), typeof(ICommand), typeof(CommitGraphControl),
+            new PropertyMetadata(null));
+
     public CommitGraphLayout? Layout
     {
         get => (CommitGraphLayout?)GetValue(LayoutProperty);
         set => SetValue(LayoutProperty, value);
+    }
+
+    public System.Collections.IEnumerable? Commits
+    {
+        get => (System.Collections.IEnumerable?)GetValue(CommitsProperty);
+        set => SetValue(CommitsProperty, value);
+    }
+
+    public ICommand? CheckoutBranchCommand
+    {
+        get => (ICommand?)GetValue(CheckoutBranchCommandProperty);
+        set => SetValue(CheckoutBranchCommandProperty, value);
+    }
+
+    public ICommand? MergeBranchCommand
+    {
+        get => (ICommand?)GetValue(MergeBranchCommandProperty);
+        set => SetValue(MergeBranchCommandProperty, value);
+    }
+
+    public ICommand? RebaseBranchCommand
+    {
+        get => (ICommand?)GetValue(RebaseBranchCommandProperty);
+        set => SetValue(RebaseBranchCommandProperty, value);
+    }
+
+    public ICommand? CreateBranchCommand
+    {
+        get => (ICommand?)GetValue(CreateBranchCommandProperty);
+        set => SetValue(CreateBranchCommandProperty, value);
+    }
+
+    public ICommand? DeleteBranchCommand
+    {
+        get => (ICommand?)GetValue(DeleteBranchCommandProperty);
+        set => SetValue(DeleteBranchCommandProperty, value);
     }
 
     public double RowHeight
@@ -334,6 +399,68 @@ public class CommitGraphControl : SKElement
             }
         }
 
+        // Draw drag connection line if dragging
+        if (_isDragging && _dragStartNode != null)
+        {
+            float startX = (float)((_dragStartNode.Lane + 0.5) * cWidth);
+            float startY = (float)((_dragStartNode.Row + 0.5) * rHeight);
+            float endX = (float)_dragCurrentPoint.X;
+            float endY = (float)(_dragCurrentPoint.Y + scrollY);
+
+            // Draw line from source node to current mouse pointer
+            using var dragPaint = new SKPaint
+            {
+                Style = SKPaintStyle.Stroke,
+                Color = GetLaneColor(_dragStartNode.Lane),
+                StrokeWidth = 3.0f,
+                PathEffect = SKPathEffect.CreateDash([4.0f, 3.0f], 0.0f),
+                IsAntialias = true,
+                StrokeCap = SKStrokeCap.Round
+            };
+            canvas.DrawLine(startX, startY, endX, endY, dragPaint);
+
+            // Draw a subtle animated pulsing circle under the cursor during drag
+            using var pulsePaint = new SKPaint
+            {
+                Style = SKPaintStyle.Fill,
+                Color = GetLaneColor(_dragStartNode.Lane).WithAlpha(120),
+                IsAntialias = true
+            };
+            canvas.DrawCircle(endX, endY, 6.0f, pulsePaint);
+
+            // Draw a floating pill badge label at the end point
+            using var textPaint = new SKPaint
+            {
+                Color = SKColors.White,
+                IsAntialias = true
+            };
+            
+            using var font = new SKFont(SKTypeface.FromFamilyName("Segoe UI"), 10f);
+            
+            var text = "Drag to Merge/Rebase";
+            var textWidth = font.MeasureText(text);
+            var rectWidth = textWidth + 16f;
+            var rectHeight = 18f;
+            var rect = new SKRect(endX - rectWidth/2, endY - 25f - rectHeight, endX + rectWidth/2, endY - 25f);
+            
+            using var badgePaint = new SKPaint
+            {
+                Style = SKPaintStyle.Fill,
+                Color = SKColor.Parse("#1E1E24"),
+                IsAntialias = true
+            };
+            using var badgeBorderPaint = new SKPaint
+            {
+                Style = SKPaintStyle.Stroke,
+                Color = GetLaneColor(_dragStartNode.Lane),
+                StrokeWidth = 1.0f,
+                IsAntialias = true
+            };
+            canvas.DrawRoundRect(rect, 4f, 4f, badgePaint);
+            canvas.DrawRoundRect(rect, 4f, 4f, badgeBorderPaint);
+            canvas.DrawText(text, endX, endY - 25f - 5f, SKTextAlign.Center, font, textPaint);
+        }
+
         canvas.Restore();
     }
 
@@ -344,54 +471,198 @@ public class CommitGraphControl : SKElement
     }
 
     // Interactivity
+    private CommitNodeLayout? HitTestNode(Point mousePos)
+    {
+        if (Layout == null) return null;
+        double canvasY = mousePos.Y + VerticalScrollOffset;
+        int row = (int)(canvasY / RowHeight);
+        if (row < 0 || row >= Layout.Nodes.Count) return null;
+
+        foreach (var n in Layout.Nodes.Values)
+        {
+            if (n.Row == row)
+            {
+                double nodeX = (n.Lane + 0.5) * ColumnWidth;
+                double nodeY = (n.Row + 0.5) * RowHeight;
+                double dx = mousePos.X - nodeX;
+                double dy = canvasY - nodeY;
+                if (Math.Sqrt(dx * dx + dy * dy) <= 15.0)
+                {
+                    return n;
+                }
+            }
+        }
+        return null;
+    }
+
+    private dynamic? FindCommitViewModel(string sha)
+    {
+        if (Commits == null) return null;
+        foreach (var item in Commits)
+        {
+            try
+            {
+                dynamic vm = item;
+                if (vm.Sha == sha)
+                {
+                    return vm;
+                }
+            }
+            catch { }
+        }
+        return null;
+    }
+
+    private List<string> GetBranches(string sha)
+    {
+        var branches = new List<string>();
+        var vm = FindCommitViewModel(sha);
+        if (vm != null)
+        {
+            try
+            {
+                foreach (var b in vm.Branches)
+                {
+                    branches.Add(b.ToString());
+                }
+            }
+            catch { }
+        }
+        return branches;
+    }
+
+    private void ShowRightClickMenu(CommitNodeLayout node, Point clientPos)
+    {
+        var menu = new System.Windows.Controls.ContextMenu();
+        menu.Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#1E1E24"));
+        menu.Foreground = System.Windows.Media.Brushes.White;
+        menu.BorderBrush = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#3E4452"));
+
+        var sha = node.Sha;
+        var branches = GetBranches(sha);
+
+        if (branches.Count > 0)
+        {
+            foreach (var b in branches)
+            {
+                var checkoutItem = new System.Windows.Controls.MenuItem { Header = $"Checkout '{b}'", Foreground = System.Windows.Media.Brushes.White };
+                checkoutItem.Click += (s, e) => CheckoutBranchCommand?.Execute(b);
+                menu.Items.Add(checkoutItem);
+
+                var mergeItem = new System.Windows.Controls.MenuItem { Header = $"Merge '{b}' into current", Foreground = System.Windows.Media.Brushes.White };
+                mergeItem.Click += (s, e) => MergeBranchCommand?.Execute(b);
+                menu.Items.Add(mergeItem);
+
+                var rebaseItem = new System.Windows.Controls.MenuItem { Header = $"Rebase current onto '{b}'", Foreground = System.Windows.Media.Brushes.White };
+                rebaseItem.Click += (s, e) => RebaseBranchCommand?.Execute(Tuple.Create(b, ""));
+                menu.Items.Add(rebaseItem);
+
+                var deleteItem = new System.Windows.Controls.MenuItem { Header = $"Delete branch '{b}'", Foreground = System.Windows.Media.Brushes.White };
+                deleteItem.Click += (s, e) => DeleteBranchCommand?.Execute(b);
+                menu.Items.Add(deleteItem);
+            }
+            menu.Items.Add(new System.Windows.Controls.Separator { Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#3E4452")) });
+        }
+
+        var createBranchItem = new System.Windows.Controls.MenuItem { Header = "Create branch here...", Foreground = System.Windows.Media.Brushes.White };
+        createBranchItem.Click += (s, e) => CreateBranchCommand?.Execute(sha);
+        menu.Items.Add(createBranchItem);
+
+        menu.IsOpen = true;
+    }
+
+    private void ShowDragDropMenu(CommitNodeLayout sourceNode, CommitNodeLayout targetNode, Point clientPos)
+    {
+        var sourceBranches = GetBranches(sourceNode.Sha);
+        var targetBranches = GetBranches(targetNode.Sha);
+
+        if (sourceBranches.Count == 0) return;
+
+        var menu = new System.Windows.Controls.ContextMenu();
+        menu.Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#1E1E24"));
+        menu.Foreground = System.Windows.Media.Brushes.White;
+        menu.BorderBrush = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#3E4452"));
+
+        foreach (var s in sourceBranches)
+        {
+            if (targetBranches.Count > 0)
+            {
+                foreach (var t in targetBranches)
+                {
+                    var mergeItem = new System.Windows.Controls.MenuItem { Header = $"Merge '{s}' into '{t}'", Foreground = System.Windows.Media.Brushes.White };
+                    mergeItem.Click += (sender, e) => {
+                        CheckoutBranchCommand?.Execute(t);
+                        MergeBranchCommand?.Execute(s);
+                    };
+                    menu.Items.Add(mergeItem);
+
+                    var rebaseItem = new System.Windows.Controls.MenuItem { Header = $"Rebase '{s}' onto '{t}'", Foreground = System.Windows.Media.Brushes.White };
+                    rebaseItem.Click += (sender, e) => {
+                        RebaseBranchCommand?.Execute(Tuple.Create(t, s));
+                    };
+                    menu.Items.Add(rebaseItem);
+                }
+            }
+            else
+            {
+                var targetSha = targetNode.Sha.Substring(0, 7);
+                var rebaseCommitItem = new System.Windows.Controls.MenuItem { Header = $"Rebase '{s}' onto '{targetSha}'", Foreground = System.Windows.Media.Brushes.White };
+                rebaseCommitItem.Click += (sender, e) => {
+                    RebaseBranchCommand?.Execute(Tuple.Create(targetNode.Sha, s));
+                };
+                menu.Items.Add(rebaseCommitItem);
+            }
+        }
+
+        if (menu.Items.Count > 0)
+        {
+            menu.IsOpen = true;
+        }
+    }
+
     protected override void OnMouseMove(MouseEventArgs e)
     {
         base.OnMouseMove(e);
         if (Layout == null || Layout.Nodes.Count == 0) return;
 
         var pos = e.GetPosition(this);
-        double scrollY = VerticalScrollOffset;
-        double canvasY = pos.Y + scrollY;
 
-        int row = (int)(canvasY / RowHeight);
-        if (row >= 0 && row < Layout.Nodes.Count)
+        if (IsMouseCaptured && _dragStartNode != null)
         {
-            // Find if we are close to the node in that row
-            CommitNodeLayout? targetNode = null;
-            foreach (var n in Layout.Nodes.Values)
+            if (!_isDragging)
             {
-                if (n.Row == row)
+                double dx = pos.X - _dragStartPoint.X;
+                double dy = pos.Y - _dragStartPoint.Y;
+                if (Math.Sqrt(dx * dx + dy * dy) > 5.0)
                 {
-                    targetNode = n;
-                    break;
+                    _isDragging = true;
                 }
             }
 
-            if (targetNode != null)
+            if (_isDragging)
             {
-                double nodeX = (targetNode.Lane + 0.5) * ColumnWidth;
-                double nodeY = (targetNode.Row + 0.5) * RowHeight;
-
-                double dx = pos.X - nodeX;
-                double dy = canvasY - nodeY;
-                double dist = Math.Sqrt(dx * dx + dy * dy);
-
-                if (dist <= 15.0)
-                {
-                    if (HoveredSha != targetNode.Sha)
-                    {
-                        HoveredSha = targetNode.Sha;
-                        Cursor = Cursors.Hand;
-                    }
-                    return;
-                }
+                _dragCurrentPoint = pos;
+                InvalidateVisual();
             }
+            return;
         }
 
-        if (HoveredSha != null)
+        var node = HitTestNode(pos);
+        if (node != null)
         {
-            HoveredSha = null;
-            Cursor = Cursors.Arrow;
+            if (HoveredSha != node.Sha)
+            {
+                HoveredSha = node.Sha;
+                Cursor = Cursors.Hand;
+            }
+        }
+        else
+        {
+            if (HoveredSha != null)
+            {
+                HoveredSha = null;
+                Cursor = Cursors.Arrow;
+            }
         }
     }
 
@@ -399,6 +670,11 @@ public class CommitGraphControl : SKElement
     {
         base.OnMouseLeave(e);
         HoveredSha = null;
+        if (!_isDragging)
+        {
+            _dragStartNode = null;
+            IsMouseCaptured.ToString(); // Dummy to read
+        }
     }
 
     protected override void OnMouseDown(MouseButtonEventArgs e)
@@ -406,41 +682,57 @@ public class CommitGraphControl : SKElement
         base.OnMouseDown(e);
         if (Layout == null || Layout.Nodes.Count == 0) return;
 
+        var pos = e.GetPosition(this);
+        var clickedNode = HitTestNode(pos);
+
         if (e.ChangedButton == MouseButton.Left)
         {
-            var pos = e.GetPosition(this);
-            double scrollY = VerticalScrollOffset;
-            double canvasY = pos.Y + scrollY;
-
-            int row = (int)(canvasY / RowHeight);
-            if (row >= 0 && row < Layout.Nodes.Count)
+            if (clickedNode != null)
             {
-                CommitNodeLayout? targetNode = null;
-                foreach (var n in Layout.Nodes.Values)
-                {
-                    if (n.Row == row)
-                    {
-                        targetNode = n;
-                        break;
-                    }
-                }
-
-                if (targetNode != null)
-                {
-                    double nodeX = (targetNode.Lane + 0.5) * ColumnWidth;
-                    double nodeY = (targetNode.Row + 0.5) * RowHeight;
-
-                    double dx = pos.X - nodeX;
-                    double dy = canvasY - nodeY;
-                    double dist = Math.Sqrt(dx * dx + dy * dy);
-
-                    if (dist <= 15.0)
-                    {
-                        SelectedSha = targetNode.Sha;
-                        e.Handled = true;
-                    }
-                }
+                _dragStartNode = clickedNode;
+                _dragStartPoint = pos;
+                _dragCurrentPoint = pos;
+                _isDragging = false;
+                CaptureMouse();
+                e.Handled = true;
             }
+        }
+        else if (e.ChangedButton == MouseButton.Right)
+        {
+            if (clickedNode != null)
+            {
+                ShowRightClickMenu(clickedNode, PointToScreen(pos));
+                e.Handled = true;
+            }
+        }
+    }
+
+    protected override void OnMouseUp(MouseButtonEventArgs e)
+    {
+        base.OnMouseUp(e);
+        if (IsMouseCaptured)
+        {
+            ReleaseMouseCapture();
+            var pos = e.GetPosition(this);
+
+            if (_isDragging && _dragStartNode != null)
+            {
+                _isDragging = false;
+                var dropNode = HitTestNode(pos);
+                if (dropNode != null && dropNode.Sha != _dragStartNode.Sha)
+                {
+                    ShowDragDropMenu(_dragStartNode, dropNode, PointToScreen(pos));
+                }
+                InvalidateVisual();
+            }
+            else if (_dragStartNode != null)
+            {
+                // Simple click selection
+                SelectedSha = _dragStartNode.Sha;
+            }
+
+            _dragStartNode = null;
+            e.Handled = true;
         }
     }
 }

@@ -206,6 +206,12 @@ public class MainViewModel : ObservableObject
     public ICommand PushCommand { get; }
     public ICommand PullCommand { get; }
     public ICommand FetchCommand { get; }
+    
+    public ICommand CheckoutBranchCommand { get; }
+    public ICommand MergeBranchCommand { get; }
+    public ICommand RebaseBranchCommand { get; }
+    public ICommand CreateBranchCommand { get; }
+    public ICommand DeleteBranchCommand { get; }
 
     public MainViewModel(IGitService gitService)
     {
@@ -222,6 +228,12 @@ public class MainViewModel : ObservableObject
         PushCommand = new RelayCommand(Push);
         PullCommand = new RelayCommand(Pull);
         FetchCommand = new RelayCommand(Fetch);
+
+        CheckoutBranchCommand = new RelayCommand<string>(CheckoutBranch);
+        MergeBranchCommand = new RelayCommand<string>(MergeBranch);
+        RebaseBranchCommand = new RelayCommand<Tuple<string, string>>(RebaseBranch);
+        CreateBranchCommand = new RelayCommand<string>(CreateBranchAt);
+        DeleteBranchCommand = new RelayCommand<string>(DeleteBranch);
     }
 
     private void OpenRepository()
@@ -468,5 +480,171 @@ public class MainViewModel : ObservableObject
         {
             System.Windows.MessageBox.Show($"Error fetching: {ex.Message}", "Fetch Failed", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
         }
+    }
+
+    private void CheckoutBranch(string? branchName)
+    {
+        if (string.IsNullOrEmpty(branchName)) return;
+        try
+        {
+            _gitService.Checkout(branchName);
+            LoadRepository(RepositoryPath);
+        }
+        catch (Exception ex)
+        {
+            System.Windows.MessageBox.Show($"Checkout failed: {ex.Message}", "Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+        }
+    }
+
+    private void MergeBranch(string? sourceBranch)
+    {
+        if (string.IsNullOrEmpty(sourceBranch)) return;
+        try
+        {
+            _gitService.Merge(sourceBranch);
+            LoadRepository(RepositoryPath);
+            System.Windows.MessageBox.Show($"Merge of {sourceBranch} completed successfully.", "Success", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
+        }
+        catch (Exception ex)
+        {
+            System.Windows.MessageBox.Show($"Merge failed: {ex.Message}", "Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+        }
+    }
+
+    private void RebaseBranch(Tuple<string, string>? info)
+    {
+        if (info == null) return;
+        try
+        {
+            _gitService.Rebase(info.Item1, info.Item2);
+            LoadRepository(RepositoryPath);
+            System.Windows.MessageBox.Show($"Rebase of {info.Item2} onto {info.Item1} completed successfully.", "Success", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
+        }
+        catch (Exception ex)
+        {
+            System.Windows.MessageBox.Show($"Rebase failed: {ex.Message}", "Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+        }
+    }
+
+    private void CreateBranchAt(string? sha)
+    {
+        if (string.IsNullOrEmpty(sha)) return;
+        var branchName = ShowInputDialog("Create Branch", "Enter new branch name:", "");
+        if (string.IsNullOrEmpty(branchName)) return;
+
+        try
+        {
+            _gitService.CreateBranch(branchName, sha);
+            LoadRepository(RepositoryPath);
+        }
+        catch (Exception ex)
+        {
+            System.Windows.MessageBox.Show($"Create branch failed: {ex.Message}", "Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+        }
+    }
+
+    private void DeleteBranch(string? branchName)
+    {
+        if (string.IsNullOrEmpty(branchName)) return;
+        try
+        {
+            var result = System.Windows.MessageBox.Show($"Are you sure you want to delete branch '{branchName}'?", "Confirm Delete", System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Warning);
+            if (result == System.Windows.MessageBoxResult.Yes)
+            {
+                _gitService.DeleteBranch(branchName);
+                LoadRepository(RepositoryPath);
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Windows.MessageBox.Show($"Delete branch failed: {ex.Message}", "Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+        }
+    }
+
+    private string? ShowInputDialog(string title, string prompt, string defaultVal = "")
+    {
+        var window = new System.Windows.Window
+        {
+            Title = title,
+            Width = 350,
+            Height = 150,
+            WindowStartupLocation = System.Windows.WindowStartupLocation.CenterOwner,
+            Owner = System.Windows.Application.Current.MainWindow,
+            ResizeMode = System.Windows.ResizeMode.NoResize,
+            Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#1E1E24")),
+            Foreground = System.Windows.Media.Brushes.White
+        };
+
+        var grid = new System.Windows.Controls.Grid { Margin = new System.Windows.Thickness(15) };
+        grid.RowDefinitions.Add(new System.Windows.Controls.RowDefinition { Height = System.Windows.GridLength.Auto });
+        grid.RowDefinitions.Add(new System.Windows.Controls.RowDefinition { Height = new System.Windows.GridLength(1, System.Windows.GridUnitType.Star) });
+        grid.RowDefinitions.Add(new System.Windows.Controls.RowDefinition { Height = System.Windows.GridLength.Auto });
+
+        var textBlock = new System.Windows.Controls.TextBlock
+        {
+            Text = prompt,
+            Margin = new System.Windows.Thickness(0, 0, 0, 10),
+            Foreground = System.Windows.Media.Brushes.White,
+            FontWeight = System.Windows.FontWeights.SemiBold
+        };
+        System.Windows.Controls.Grid.SetRow(textBlock, 0);
+        grid.Children.Add(textBlock);
+
+        var textBox = new System.Windows.Controls.TextBox
+        {
+            Text = defaultVal,
+            Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#12151C")),
+            Foreground = System.Windows.Media.Brushes.White,
+            BorderBrush = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#3E4452")),
+            CaretBrush = System.Windows.Media.Brushes.White,
+            Padding = new System.Windows.Thickness(5),
+            Height = 30
+        };
+        System.Windows.Controls.Grid.SetRow(textBox, 1);
+        grid.Children.Add(textBox);
+
+        var buttonPanel = new System.Windows.Controls.StackPanel
+        {
+            Orientation = System.Windows.Controls.Orientation.Horizontal,
+            HorizontalAlignment = System.Windows.HorizontalAlignment.Right,
+            Margin = new System.Windows.Thickness(0, 15, 0, 0)
+        };
+        System.Windows.Controls.Grid.SetRow(buttonPanel, 2);
+
+        var okButton = new System.Windows.Controls.Button
+        {
+            Content = "OK",
+            Width = 70,
+            Height = 25,
+            Margin = new System.Windows.Thickness(0, 0, 10, 0),
+            IsDefault = true,
+            Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#0D9488")),
+            Foreground = System.Windows.Media.Brushes.White,
+            BorderThickness = new System.Windows.Thickness(0)
+        };
+        okButton.Click += (s, e) => { window.DialogResult = true; window.Close(); };
+
+        var cancelButton = new System.Windows.Controls.Button
+        {
+            Content = "Cancel",
+            Width = 70,
+            Height = 25,
+            IsCancel = true,
+            Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#3E4452")),
+            Foreground = System.Windows.Media.Brushes.White,
+            BorderThickness = new System.Windows.Thickness(0)
+        };
+        cancelButton.Click += (s, e) => { window.DialogResult = false; window.Close(); };
+
+        buttonPanel.Children.Add(okButton);
+        buttonPanel.Children.Add(cancelButton);
+        grid.Children.Add(buttonPanel);
+
+        window.Content = grid;
+        if (window.ShowDialog() == true)
+        {
+            return textBox.Text.Trim();
+        }
+        return null;
     }
 }
