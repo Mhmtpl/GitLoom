@@ -1,13 +1,13 @@
 # 🧶 GitLoom
 
-> **GitLoom** is a premium, high-performance desktop Git client built with **.NET 10 (LTS)**, **WPF**, **SkiaSharp**, and **LibGit2Sharp**. Inspired by the visual elegance of GitKraken, GitLoom renders your commit history as a beautiful, virtualized interactive loom of threads.
+> **GitLoom** is a premium, high-performance desktop Git client built with **.NET 10 (LTS)**, **WPF**, **SkiaSharp**, and **LibGit2Sharp**. GitLoom renders your commit history as a beautiful, virtualized interactive loom of threads.
 
 ---
 
 ## ✨ Features
 
 - **🚀 60fps Viewport Virtualization:** Custom SkiaSharp rendering engine that dynamically computes and paints only the visible commits and Bezier S-curves, providing buttery-smooth scrolling even on repositories with 10,000+ commits.
-- **🎨 Elite Dark Theme:** A curated obsidian, charcoal, and neon cyan theme with refined borders and clean typographic hierarchy.
+- **🎨 Elite Dark Theme:** A curated obsidian, charcoal, and Jade Teal/Ice Blue theme with refined borders and clean typographic hierarchy.
 - **📂 Advanced Staging Panel:** A clutter-free drag/double-click interface to view unstaged/staged files, complete with file status indicators, clean hover-triggered ghost actions, and custom commit inputs.
 - **🌿 Sorted Explorer:** Keep your workspace structured with separate sections for Local Branches, Remote Branches, and Tags, styled with unique colored accent bars.
 - **🔄 Complete Sync Actions:** Full support for `Pull`, `Push`, and `Fetch` directly from the toolbar using your local Git credentials.
@@ -40,7 +40,7 @@ Make sure you have [.NET 10 SDK](https://dotnet.microsoft.com/download) installe
    ```
 3. Run the UI application:
    ```bash
-   dotnet run --project src/GitKrakenClone.UI
+   dotnet run --project src/GitLoom.UI
    ```
 
 ---
@@ -49,10 +49,10 @@ Make sure you have [.NET 10 SDK](https://dotnet.microsoft.com/download) installe
 
 ```
 src/
-├── GitKrakenClone.Core/         - Git operation services, models & unified diff parsers
-├── GitKrakenClone.Rendering/    - Math layouts, lane assignment algorithms & Skia rendering controls
-├── GitKrakenClone.UI/           - WPF Shell, Views, ViewModels, and controls
-└── GitKrakenClone.Tests/        - Lane assignment test suites (xUnit)
+├── GitLoom.Core/         - Git operation services, models & unified diff parsers
+├── GitLoom.Rendering/    - Math layouts, lane assignment algorithms & Skia rendering controls
+├── GitLoom.UI/           - WPF Shell, Views, ViewModels, and controls
+└── GitLoom.Tests/        - Lane assignment test suites (xUnit)
 ```
 
 ---
