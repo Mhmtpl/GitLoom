@@ -1,6 +1,6 @@
 using System.Windows.Controls;
 
-namespace GitKrakenClone.UI.Controls;
+namespace GitLoom.UI.Controls;
 
 /// <summary>
 /// Interaction logic for DiffViewControl.xaml

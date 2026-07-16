@@ -1,9 +1,9 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using GitKrakenClone.UI.ViewModels;
+using GitLoom.UI.ViewModels;
 
-namespace GitKrakenClone.UI;
+namespace GitLoom.UI;
 
 /// <summary>
 /// Interaction logic for MainWindow.xaml

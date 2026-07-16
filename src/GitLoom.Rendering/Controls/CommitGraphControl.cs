@@ -6,9 +6,9 @@ using System.Windows.Media;
 using SkiaSharp;
 using SkiaSharp.Views.WPF;
 using SkiaSharp.Views.Desktop;
-using GitKrakenClone.Rendering.Layout;
+using GitLoom.Rendering.Layout;
 
-namespace GitKrakenClone.Rendering.Controls;
+namespace GitLoom.Rendering.Controls;
 
 public class CommitGraphControl : SKElement
 {

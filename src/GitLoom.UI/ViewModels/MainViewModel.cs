@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using GitKrakenClone.Core.Models;
-using GitKrakenClone.Core.Services;
-using GitKrakenClone.Rendering.Layout;
+using GitLoom.Core.Models;
+using GitLoom.Core.Services;
+using GitLoom.Rendering.Layout;
 
-namespace GitKrakenClone.UI.ViewModels;
+namespace GitLoom.UI.ViewModels;
 
 public class MainViewModel : ObservableObject
 {

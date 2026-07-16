@@ -1,10 +1,10 @@
 using System;
 using System.Windows;
 using Microsoft.Extensions.DependencyInjection;
-using GitKrakenClone.Core.Services;
-using GitKrakenClone.UI.ViewModels;
+using GitLoom.Core.Services;
+using GitLoom.UI.ViewModels;
 
-namespace GitKrakenClone.UI;
+namespace GitLoom.UI;
 
 /// <summary>
 /// Interaction logic for App.xaml

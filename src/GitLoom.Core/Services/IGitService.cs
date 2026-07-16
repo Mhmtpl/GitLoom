@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using GitKrakenClone.Core.Models;
+using GitLoom.Core.Models;
 
-namespace GitKrakenClone.Core.Services;
+namespace GitLoom.Core.Services;
 
 public interface IGitService : IDisposable
 {

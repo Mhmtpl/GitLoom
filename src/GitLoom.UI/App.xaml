@@ -1,7 +1,7 @@
-<Application x:Class="GitKrakenClone.UI.App"
+<Application x:Class="GitLoom.UI.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:GitKrakenClone.UI">
+             xmlns:local="clr-namespace:GitLoom.UI">
     <Application.Resources>
          
     </Application.Resources>

@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace GitKrakenClone.Core.Models;
+namespace GitLoom.Core.Models;
 
 public class CommitInfo
 {

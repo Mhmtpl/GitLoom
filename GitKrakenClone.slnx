@@ -1,8 +1,0 @@
-<Solution>
-  <Folder Name="/src/">
-    <Project Path="src/GitKrakenClone.Core/GitKrakenClone.Core.csproj" />
-    <Project Path="src/GitKrakenClone.Rendering/GitKrakenClone.Rendering.csproj" />
-    <Project Path="src/GitKrakenClone.Tests/GitKrakenClone.Tests.csproj" />
-    <Project Path="src/GitKrakenClone.UI/GitKrakenClone.UI.csproj" />
-  </Folder>
-</Solution>

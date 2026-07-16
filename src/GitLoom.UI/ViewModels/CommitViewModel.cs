@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using CommunityToolkit.Mvvm.ComponentModel;
-using GitKrakenClone.Core.Models;
+using GitLoom.Core.Models;
 
-namespace GitKrakenClone.UI.ViewModels;
+namespace GitLoom.UI.ViewModels;
 
 public class CommitViewModel : ObservableObject
 {

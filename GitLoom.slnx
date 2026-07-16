@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/GitLoom.Core/GitLoom.Core.csproj" />
+    <Project Path="src/GitLoom.Rendering/GitLoom.Rendering.csproj" />
+    <Project Path="src/GitLoom.Tests/GitLoom.Tests.csproj" />
+    <Project Path="src/GitLoom.UI/GitLoom.UI.csproj" />
+  </Folder>
+</Solution>

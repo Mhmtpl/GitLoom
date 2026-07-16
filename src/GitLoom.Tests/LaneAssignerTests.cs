@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using Xunit;
-using GitKrakenClone.Core.Models;
-using GitKrakenClone.Rendering.Layout;
+using GitLoom.Core.Models;
+using GitLoom.Rendering.Layout;
 
-namespace GitKrakenClone.Tests;
+namespace GitLoom.Tests;
 
 public class LaneAssignerTests
 {

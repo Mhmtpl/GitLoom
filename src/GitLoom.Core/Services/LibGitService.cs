@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using LibGit2Sharp;
-using GitKrakenClone.Core.Models;
+using GitLoom.Core.Models;
 
-namespace GitKrakenClone.Core.Services;
+namespace GitLoom.Core.Services;
 
 public class LibGitService : IGitService
 {

@@ -1,8 +1,8 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\GitKrakenClone.Core\GitKrakenClone.Core.csproj" />
-    <ProjectReference Include="..\GitKrakenClone.Rendering\GitKrakenClone.Rendering.csproj" />
+    <ProjectReference Include="..\GitLoom.Core\GitLoom.Core.csproj" />
+    <ProjectReference Include="..\GitLoom.Rendering\GitLoom.Rendering.csproj" />
   </ItemGroup>
 
   <ItemGroup>

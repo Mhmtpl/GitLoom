@@ -2,9 +2,9 @@ using System;
 using System.IO;
 using System.Linq;
 using Xunit;
-using GitKrakenClone.Core.Services;
+using GitLoom.Core.Services;
 
-namespace GitKrakenClone.Tests;
+namespace GitLoom.Tests;
 
 public class LibGitServiceTests
 {

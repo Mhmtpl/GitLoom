@@ -1,4 +1,4 @@
-﻿namespace GitKrakenClone.Tests;
+namespace GitLoom.Tests;
 
 public class UnitTest1
 {

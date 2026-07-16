@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using GitKrakenClone.Core.Models;
+using GitLoom.Core.Models;
 
-namespace GitKrakenClone.Rendering.Layout;
+namespace GitLoom.Rendering.Layout;
 
 public enum EdgeType
 {
