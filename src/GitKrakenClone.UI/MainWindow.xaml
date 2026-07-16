@@ -9,20 +9,20 @@
         xmlns:vm="clr-namespace:GitKrakenClone.UI.ViewModels"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type=vm:MainViewModel}"
-        Title="GitGraph Client - Premium Git Client" Height="750" Width="1200"
-        Background="#09090B" Foreground="#F4F4F5"
+        Title="GitLoom - Premium Git Client" Height="750" Width="1200"
+        Background="#0A0C10" Foreground="#F8FAFC"
         Loaded="Window_Loaded">
     
     <Window.Resources>
-        <!-- Modern dark theme colors (Zinc Palette) -->
-        <SolidColorBrush x:Key="AppBackground" Color="#09090B" />
-        <SolidColorBrush x:Key="PanelBackground" Color="#121214" />
-        <SolidColorBrush x:Key="HeaderBackground" Color="#18181B" />
-        <SolidColorBrush x:Key="BorderColor" Color="#27272A" />
-        <SolidColorBrush x:Key="AccentColor" Color="#6366F1" /> <!-- Premium Indigo Accent -->
-        <SolidColorBrush x:Key="TextPrimary" Color="#F4F4F5" />
-        <SolidColorBrush x:Key="TextSecondary" Color="#A1A1AA" />
-        <SolidColorBrush x:Key="TextMuted" Color="#52525B" />
+        <!-- Premium dark theme colors (Modern Slate & Cyan Theme) -->
+        <SolidColorBrush x:Key="AppBackground" Color="#12151C" /> <!-- Obsidian Work Area -->
+        <SolidColorBrush x:Key="PanelBackground" Color="#0A0C10" /> <!-- Deep Obsidian Sidebar/Panels -->
+        <SolidColorBrush x:Key="HeaderBackground" Color="#161A23" /> <!-- Elegant Charcoal Header -->
+        <SolidColorBrush x:Key="BorderColor" Color="#1E2330" /> <!-- Muted Separators -->
+        <SolidColorBrush x:Key="AccentColor" Color="#F97316" /> <!-- Premium Sunset Orange Accent -->
+        <SolidColorBrush x:Key="TextPrimary" Color="#F8FAFC" /> <!-- Premium Bright White -->
+        <SolidColorBrush x:Key="TextSecondary" Color="#94A3B8" /> <!-- Muted Cool Gray -->
+        <SolidColorBrush x:Key="TextMuted" Color="#475569" /> <!-- Dark Muted Gray -->
         
         <!-- Flat Rounded Scrollbar Styling -->
         <Style x:Key="ScrollBarThumb" TargetType="{x:Type Thumb}">
@@ -79,6 +79,8 @@
         <Style x:Key="DarkListBoxStyle" TargetType="ListBox">
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Margin" Value="0" />
             <Setter Property="Foreground" Value="#F4F4F5" />
             <Style.Resources>
                 <!-- Remove default highlight -->
@@ -87,19 +89,82 @@
             </Style.Resources>
         </Style>
 
-        <!-- Style for Branch Badge (Flat transparent design) -->
+        <!-- Style for Branch Badge (Sunset Orange/Amber style) -->
         <DataTemplate x:Key="BranchBadgeTemplate">
-            <Border Background="#102A24" BorderBrush="#059669" BorderThickness="1" CornerRadius="4" Padding="6,2" Margin="0,0,6,0" VerticalAlignment="Center">
-                <TextBlock Text="{Binding}" Foreground="#34D399" FontSize="10.5" FontWeight="SemiBold"/>
+            <Border Background="#3D2010" BorderBrush="#EA580C" BorderThickness="1" CornerRadius="4" Padding="6,2" Margin="0,0,6,0" VerticalAlignment="Center">
+                <TextBlock Text="{Binding}" Foreground="#FDBA74" FontSize="10.5" FontWeight="SemiBold"/>
             </Border>
         </DataTemplate>
 
-        <!-- Style for Tag Badge -->
+        <!-- Style for Tag Badge (Vibrant Gold style) -->
         <DataTemplate x:Key="TagBadgeTemplate">
-            <Border Background="#2B1F10" BorderBrush="#D97706" BorderThickness="1" CornerRadius="4" Padding="6,2" Margin="0,0,6,0" VerticalAlignment="Center">
-                <TextBlock Text="{Binding}" Foreground="#FBBF24" FontSize="10.5" FontWeight="SemiBold"/>
+            <Border Background="#3D2710" BorderBrush="#D48000" BorderThickness="1" CornerRadius="4" Padding="6,2" Margin="0,0,6,0" VerticalAlignment="Center">
+                <TextBlock Text="{Binding}" Foreground="#FFCC44" FontSize="10.5" FontWeight="SemiBold"/>
             </Border>
         </DataTemplate>
+        <!-- Premium Button Style (Sunset Orange/Amber) -->
+        <Style x:Key="PremiumButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#2A201A" />
+            <Setter Property="Foreground" Value="#FDBA74" />
+            <Setter Property="BorderBrush" Value="#EA580C" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Padding" Value="14,8" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#EA580C" />
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="#F97316" />
+                                <Setter Property="Foreground" Value="#FFF7ED" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#C2410C" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
+        <!-- Style for primary button (Cyan Accent) -->
+        <Style x:Key="PrimaryButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#06B6D4" />
+            <Setter Property="Foreground" Value="#0A0C10" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="Padding" Value="14,8" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#22D3EE" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#0891B2" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Bd" Property="Background" Value="#1E293B" />
+                                <Setter Property="Foreground" Value="#64748B" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
 
     <Grid>
@@ -121,41 +186,19 @@
 
                 <!-- Left Panel: Brand & Open Action -->
                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                    <!-- Brand Icon -->
-                    <Border Background="{StaticResource AccentColor}" Width="28" Height="28" CornerRadius="6" Margin="0,0,12,0" VerticalAlignment="Center">
-                        <TextBlock Text="G" Foreground="White" FontWeight="Bold" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    <Border Width="28" Height="28" CornerRadius="6" Margin="0,0,12,0" VerticalAlignment="Center">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                <GradientStop Color="#F59E0B" Offset="0" />
+                                <GradientStop Color="#EF4444" Offset="1" />
+                            </LinearGradientBrush>
+                        </Border.Background>
+                        <TextBlock Text="L" Foreground="White" FontWeight="Bold" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,-1,0,0" />
                     </Border>
                     
                     <Button Content="Open Repository" 
                             Command="{Binding OpenRepositoryCommand}"
-                            Background="{StaticResource AccentColor}" 
-                            Foreground="White" 
-                            BorderThickness="0" 
-                            Padding="14,8" 
-                            FontWeight="SemiBold" 
-                            FontSize="12"
-                            Cursor="Hand"
-                            Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
-                        <!-- Custom button style to make it rounded -->
-                        <Button.Resources>
-                            <Style TargetType="Button">
-                                <Setter Property="Template">
-                                    <Setter.Value>
-                                        <ControlTemplate TargetType="Button">
-                                            <Border Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
-                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                                            </Border>
-                                        </ControlTemplate>
-                                    </Setter.Value>
-                                </Setter>
-                                <Style.Triggers>
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter Property="Background" Value="#4F46E5" />
-                                    </Trigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Resources>
-                    </Button>
+                            Style="{StaticResource PremiumButtonStyle}" />
                     
                     <Separator Margin="16,10" Background="{StaticResource BorderColor}" Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" />
 
@@ -189,12 +232,28 @@
                     </Border>
                 </StackPanel>
 
-                <!-- Right Panel: Zoom Slider -->
+                <!-- Right Panel: Git Sync Operations & Zoom Slider -->
                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                    <!-- Pull -->
+                    <Button Content="Pull" 
+                            Command="{Binding PullCommand}"
+                            Style="{StaticResource PremiumButtonStyle}"
+                            Height="30" Padding="12,0" Margin="0,0,8,0" VerticalAlignment="Center" />
+                    <!-- Push -->
+                    <Button Content="Push" 
+                            Command="{Binding PushCommand}"
+                            Style="{StaticResource PremiumButtonStyle}"
+                            Height="30" Padding="12,0" Margin="0,0,8,0" VerticalAlignment="Center" />
+                    <!-- Fetch -->
+                    <Button Content="Fetch" 
+                            Command="{Binding FetchCommand}"
+                            Style="{StaticResource PremiumButtonStyle}"
+                            Height="30" Padding="12,0" Margin="0,0,16,0" VerticalAlignment="Center" />
+
                     <TextBlock Text="Zoom" Foreground="{StaticResource TextSecondary}" FontSize="11.5" VerticalAlignment="Center" Margin="0,0,10,0" />
                     <Slider x:Name="ZoomSlider" 
-                            Minimum="28" Maximum="56" Value="40" 
-                            Width="90" 
+                            Minimum="28" Maximum="56" Value="{Binding RowHeight, Mode=TwoWay}" 
+                            Width="80" 
                             TickFrequency="1" IsSnapToTickEnabled="True" 
                             VerticalAlignment="Center" />
                 </StackPanel>
@@ -206,12 +265,12 @@
             <Grid.ColumnDefinitions>
                 <!-- Left Explorer -->
                 <ColumnDefinition Width="220" MinWidth="160" MaxWidth="320" />
-                <!-- Grid Splitter -->
-                <ColumnDefinition Width="2" />
+                <!-- Grid Splitter (Hairline width) -->
+                <ColumnDefinition Width="1" />
                 <!-- Middle Commit List -->
                 <ColumnDefinition Width="*" MinWidth="400" />
-                <!-- Grid Splitter -->
-                <ColumnDefinition Width="2" />
+                <!-- Grid Splitter (Hairline width) -->
+                <ColumnDefinition Width="1" />
                 <!-- Right Details & Diff -->
                 <ColumnDefinition Width="420" MinWidth="300" MaxWidth="650" />
             </Grid.ColumnDefinitions>
@@ -220,20 +279,27 @@
             <Border Grid.Column="0" Background="{StaticResource PanelBackground}" BorderBrush="{StaticResource BorderColor}" BorderThickness="0,0,1,0">
                 <Grid Margin="12,16">
                     <Grid.RowDefinitions>
+                        <!-- LOCAL -->
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
+                        <!-- REMOTE -->
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
+                        <!-- TAGS -->
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="120" />
                     </Grid.RowDefinitions>
 
-                    <!-- Branches Title -->
-                    <TextBlock Grid.Row="0" Text="BRANCHES" Foreground="{StaticResource TextSecondary}" FontSize="10" FontWeight="Bold" Margin="6,0,0,10" />
+                    <!-- Local Branches Title -->
+                    <Border Grid.Row="0" Background="#161A23" CornerRadius="4" Padding="8,6" Margin="0,0,0,8" BorderThickness="1,0,0,0" BorderBrush="#06B6D4">
+                        <TextBlock Text="LOCAL BRANCHES" Foreground="{StaticResource TextPrimary}" FontSize="9.5" FontWeight="Bold" VerticalAlignment="Center" />
+                    </Border>
                     
-                    <!-- Branches List -->
+                    <!-- Local Branches List -->
                     <ListBox Grid.Row="1" 
-                             ItemsSource="{Binding Branches}" 
+                             ItemsSource="{Binding LocalBranches}" 
                              Style="{StaticResource DarkListBoxStyle}"
-                             Margin="0,0,0,20">
+                             Margin="0,0,0,16">
                         <ListBox.ItemContainerStyle>
                             <Style TargetType="ListBoxItem">
                                 <Setter Property="Padding" Value="8,5" />
@@ -246,7 +312,7 @@
                                             </Border>
                                             <ControlTemplate.Triggers>
                                                 <Trigger Property="IsMouseOver" Value="True">
-                                                    <Setter TargetName="Bd" Property="Background" Value="#1E1E20" />
+                                                    <Setter TargetName="Bd" Property="Background" Value="#1B2230" />
                                                 </Trigger>
                                             </ControlTemplate.Triggers>
                                         </ControlTemplate>
@@ -257,18 +323,60 @@
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                    <TextBlock Text=" " FontFamily="Segoe MDL2 Assets" Foreground="{StaticResource TextSecondary}" FontSize="12" Margin="0,0,8,0" />
-                                    <TextBlock Text="{Binding}" FontSize="12" Foreground="#E4E4E7" />
+                                    <TextBlock Text=" " FontFamily="Segoe MDL2 Assets" Foreground="#06B6D4" FontSize="12" Margin="0,0,8,0" />
+                                    <TextBlock Text="{Binding}" FontSize="12" Foreground="#E2E8F0" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+
+                    <!-- Remote Branches Title -->
+                    <Border Grid.Row="2" Background="#161A23" CornerRadius="4" Padding="8,6" Margin="0,0,0,8" BorderThickness="1,0,0,0" BorderBrush="#F59E0B">
+                        <TextBlock Text="REMOTE BRANCHES" Foreground="{StaticResource TextPrimary}" FontSize="9.5" FontWeight="Bold" VerticalAlignment="Center" />
+                    </Border>
+                    
+                    <!-- Remote Branches List -->
+                    <ListBox Grid.Row="3" 
+                             ItemsSource="{Binding RemoteBranches}" 
+                             Style="{StaticResource DarkListBoxStyle}"
+                             Margin="0,0,0,16">
+                        <ListBox.ItemContainerStyle>
+                            <Style TargetType="ListBoxItem">
+                                <Setter Property="Padding" Value="8,5" />
+                                <Setter Property="Margin" Value="2,1" />
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="ListBoxItem">
+                                            <Border x:Name="Bd" Background="Transparent" CornerRadius="4" Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter />
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="Bd" Property="Background" Value="#1B2230" />
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </ListBox.ItemContainerStyle>
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBlock Text=" " FontFamily="Segoe MDL2 Assets" Foreground="#F59E0B" FontSize="12" Margin="0,0,8,0" />
+                                    <TextBlock Text="{Binding}" FontSize="12" Foreground="#E2E8F0" />
                                 </StackPanel>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
 
                     <!-- Tags Title -->
-                    <TextBlock Grid.Row="2" Text="TAGS" Foreground="{StaticResource TextSecondary}" FontSize="10" FontWeight="Bold" Margin="6,0,0,10" />
+                    <Border Grid.Row="4" Background="#161A23" CornerRadius="4" Padding="8,6" Margin="0,0,0,8" BorderThickness="1,0,0,0" BorderBrush="#EAB308">
+                        <TextBlock Text="TAGS" Foreground="{StaticResource TextPrimary}" FontSize="9.5" FontWeight="Bold" VerticalAlignment="Center" />
+                    </Border>
                     
                     <!-- Tags List -->
-                    <ListBox Grid.Row="3" 
+                    <ListBox Grid.Row="5" 
                              ItemsSource="{Binding Tags}" 
                              Style="{StaticResource DarkListBoxStyle}">
                         <ListBox.ItemContainerStyle>
@@ -283,7 +391,7 @@
                                             </Border>
                                             <ControlTemplate.Triggers>
                                                 <Trigger Property="IsMouseOver" Value="True">
-                                                    <Setter TargetName="Bd" Property="Background" Value="#1E1E20" />
+                                                    <Setter TargetName="Bd" Property="Background" Value="#1B2230" />
                                                 </Trigger>
                                             </ControlTemplate.Triggers>
                                         </ControlTemplate>
@@ -294,8 +402,8 @@
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                    <TextBlock Text=" " FontFamily="Segoe MDL2 Assets" Foreground="{StaticResource TextSecondary}" FontSize="11" Margin="0,0,8,0" />
-                                    <TextBlock Text="{Binding}" FontSize="12" Foreground="#E4E4E7" />
+                                    <TextBlock Text=" " FontFamily="Segoe MDL2 Assets" Foreground="#EAB308" FontSize="11" Margin="0,0,8,0" />
+                                    <TextBlock Text="{Binding}" FontSize="12" Foreground="#E2E8F0" />
                                 </StackPanel>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
@@ -303,8 +411,8 @@
                 </Grid>
             </Border>
 
-            <!-- Grid Splitter 1 -->
-            <GridSplitter Grid.Column="1" HorizontalAlignment="Stretch" Background="{StaticResource BorderColor}" />
+            <!-- Grid Splitter 1 (Transparent hit zone overlapping 1px border) -->
+            <GridSplitter Grid.Column="1" HorizontalAlignment="Stretch" Background="Transparent" Width="5" Margin="-2,0" ShowsPreview="True" Cursor="SizeWE" />
 
             <!-- MIDDLE COMMIT LIST & GRAPH -->
             <Grid Grid.Column="2" Background="{StaticResource AppBackground}">
@@ -321,7 +429,7 @@
                                              Layout="{Binding GraphLayout}"
                                              SelectedSha="{Binding SelectedSha, Mode=TwoWay}"
                                              HeadSha="{Binding HeadSha}"
-                                             RowHeight="{Binding ElementName=ZoomSlider, Path=Value}"
+                                             RowHeight="{Binding RowHeight}"
                                              ColumnWidth="20" />
 
                 <!-- Commit Rows List -->
@@ -335,8 +443,8 @@
                          VirtualizingPanel.ScrollUnit="Pixel">
                     <ListBox.ItemContainerStyle>
                         <Style TargetType="ListBoxItem">
-                            <!-- Dynamic Row Height based on Zoom Slider! -->
-                            <Setter Property="Height" Value="{Binding ElementName=ZoomSlider, Path=Value}" />
+                            <!-- Dynamic Row Height based on MainViewModel.RowHeight! -->
+                            <Setter Property="Height" Value="{Binding DataContext.RowHeight, RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}" />
                             <Setter Property="Padding" Value="0" />
                             <Setter Property="Margin" Value="0" />
                             <Setter Property="Background" Value="Transparent" />
@@ -346,7 +454,7 @@
                                 <Setter.Value>
                                     <ControlTemplate TargetType="ListBoxItem">
                                         <!-- Custom item layout with selection strip -->
-                                        <Border x:Name="ItemBorder" Background="Transparent" BorderBrush="#18181B" BorderThickness="0,0,0,1">
+                                        <Border x:Name="ItemBorder" Background="Transparent">
                                             <Grid>
                                                 <!-- Selected Accent Strip (Left Side) -->
                                                 <Border x:Name="SelectionIndicator" Background="{StaticResource AccentColor}" Width="3.5" HorizontalAlignment="Left" Visibility="Collapsed" />
@@ -356,10 +464,10 @@
                                         </Border>
                                         <ControlTemplate.Triggers>
                                             <Trigger Property="IsMouseOver" Value="True">
-                                                <Setter TargetName="ItemBorder" Property="Background" Value="#121214" />
+                                                <Setter TargetName="ItemBorder" Property="Background" Value="#222733" />
                                             </Trigger>
                                             <Trigger Property="IsSelected" Value="True">
-                                                <Setter TargetName="ItemBorder" Property="Background" Value="#18181C" />
+                                                <Setter TargetName="ItemBorder" Property="Background" Value="#2A3245" />
                                                 <Setter TargetName="SelectionIndicator" Property="Visibility" Value="Visible" />
                                             </Trigger>
                                         </ControlTemplate.Triggers>
@@ -415,11 +523,17 @@
 
                                 <!-- Author Info -->
                                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                                    <!-- Initials Avatar -->
-                                    <Border Background="#27272A" CornerRadius="8" Width="16" Height="16" Margin="0,0,8,0" VerticalAlignment="Center">
+                                    <!-- Initials Avatar (Circular Gradient) -->
+                                    <Border CornerRadius="10" Width="20" Height="20" Margin="0,0,8,0" VerticalAlignment="Center">
+                                        <Border.Background>
+                                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                                <GradientStop Color="#F59E0B" Offset="0" />
+                                                <GradientStop Color="#EF4444" Offset="1" />
+                                            </LinearGradientBrush>
+                                        </Border.Background>
                                         <TextBlock Text="{Binding AuthorInitials}" 
                                                    Foreground="White" 
-                                                   FontSize="9.5" 
+                                                   FontSize="9" 
                                                    FontWeight="Bold" 
                                                    HorizontalAlignment="Center" 
                                                    VerticalAlignment="Center" />
@@ -453,103 +567,318 @@
                 </ListBox>
             </Grid>
 
-            <!-- Grid Splitter 2 -->
-            <GridSplitter Grid.Column="3" HorizontalAlignment="Stretch" Background="{StaticResource BorderColor}" />
+            <!-- Grid Splitter 2 (Transparent hit zone overlapping 1px border) -->
+            <GridSplitter Grid.Column="3" HorizontalAlignment="Stretch" Background="Transparent" Width="5" Margin="-2,0" ShowsPreview="True" Cursor="SizeWE" />
 
             <!-- RIGHT DETAILS & DIFF PANEL -->
             <Border Grid.Column="4" Background="{StaticResource PanelBackground}" BorderThickness="1,0,0,0" BorderBrush="{StaticResource BorderColor}">
                 <Grid>
-                    <Grid.RowDefinitions>
-                        <!-- Selected Commit Details -->
-                        <RowDefinition Height="Auto" />
-                        <!-- Diff Panel -->
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
-
-                    <!-- Commit Info Header -->
-                    <Border Grid.Row="0" Background="{StaticResource HeaderBackground}" Padding="16" BorderBrush="{StaticResource BorderColor}" BorderThickness="0,0,0,1">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                            </Grid.RowDefinitions>
-                            
-                            <Grid.Style>
-                                <Style TargetType="Grid">
-                                    <Setter Property="Visibility" Value="Visible" />
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding SelectedCommit}" Value="{x:Null}">
-                                            <Setter Property="Visibility" Value="Collapsed" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Grid.Style>
-
-                            <TextBlock Grid.Row="0" 
-                                       Text="{Binding SelectedCommit.MessageSubject}" 
-                                       FontWeight="Bold" 
-                                       FontSize="13.5" 
-                                       Foreground="White" 
-                                       TextWrapping="Wrap" />
-
-                            <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,10,0,0">
-                                <Border Background="{StaticResource AccentColor}" CornerRadius="12" Width="24" Height="24" Margin="0,0,10,0" VerticalAlignment="Center">
-                                    <TextBlock Text="{Binding SelectedCommit.AuthorInitials}" 
-                                               Foreground="White" 
-                                               FontSize="10.5" 
-                                               FontWeight="Bold" 
-                                               HorizontalAlignment="Center" 
-                                               VerticalAlignment="Center" />
-                                </Border>
-                                <StackPanel VerticalAlignment="Center">
-                                    <TextBlock Text="{Binding SelectedCommit.AuthorName}" Foreground="White" FontSize="11.5" FontWeight="SemiBold" />
-                                    <TextBlock Text="{Binding SelectedCommit.AuthorEmail}" Foreground="{StaticResource TextSecondary}" FontSize="10" />
-                                </StackPanel>
-                            </StackPanel>
-
-                            <TextBlock Grid.Row="2" 
-                                       Text="{Binding SelectedCommit.Sha}" 
-                                       FontFamily="Consolas" 
-                                       FontSize="10.5" 
-                                       Foreground="{StaticResource AccentColor}" 
-                                       Margin="0,10,0,0" />
-                        </Grid>
-                    </Border>
-
-                    <!-- File list and colored diff -->
-                    <Grid Grid.Row="1">
-                        <!-- Placeholder when nothing selected -->
-                        <TextBlock Text="Select a commit to view file changes" 
+                    <!-- 1. Placeholder View (When no commit is selected) -->
+                    <Grid>
+                        <Grid.Style>
+                            <Style TargetType="Grid">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedCommit}" Value="{x:Null}">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Grid.Style>
+                        <TextBlock Text="Select a commit or WIP to view details" 
                                    Foreground="{StaticResource TextMuted}" 
                                    HorizontalAlignment="Center" 
                                    VerticalAlignment="Center" 
-                                   FontSize="12">
-                            <TextBlock.Style>
-                                <Style TargetType="TextBlock">
-                                    <Setter Property="Visibility" Value="Collapsed" />
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding SelectedCommit}" Value="{x:Null}">
-                                            <Setter Property="Visibility" Value="Visible" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </TextBlock.Style>
-                        </TextBlock>
+                                   FontSize="12" />
+                    </Grid>
 
-                        <!-- Content shown when commit is selected -->
-                        <uiControls:DiffViewControl>
-                            <uiControls:DiffViewControl.Style>
-                                <Style TargetType="UserControl">
-                                    <Setter Property="Visibility" Value="Visible" />
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding SelectedCommit}" Value="{x:Null}">
-                                            <Setter Property="Visibility" Value="Collapsed" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </uiControls:DiffViewControl.Style>
-                        </uiControls:DiffViewControl>
+                    <!-- 2. Normal Commit Details View (When a regular commit is selected) -->
+                    <Grid>
+                        <Grid.Style>
+                            <Style TargetType="Grid">
+                                <Setter Property="Visibility" Value="Visible" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedCommit}" Value="{x:Null}">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding SelectedCommit.Sha}" Value="WIP">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Grid.Style>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+
+                        <!-- Commit Info Header -->
+                        <Border Grid.Row="0" Background="{StaticResource HeaderBackground}" Padding="16" BorderBrush="{StaticResource BorderColor}" BorderThickness="0,0,0,1">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Grid.Row="0" 
+                                           Text="{Binding SelectedCommit.MessageSubject}" 
+                                           FontWeight="Bold" 
+                                           FontSize="13.5" 
+                                           Foreground="White" 
+                                           TextWrapping="Wrap" />
+
+                                <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,10,0,0">
+                                    <Border CornerRadius="12" Width="24" Height="24" Margin="0,0,10,0" VerticalAlignment="Center">
+                                        <Border.Background>
+                                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                                <GradientStop Color="#F59E0B" Offset="0" />
+                                                <GradientStop Color="#EF4444" Offset="1" />
+                                            </LinearGradientBrush>
+                                        </Border.Background>
+                                        <TextBlock Text="{Binding SelectedCommit.AuthorInitials}" 
+                                                   Foreground="White" 
+                                                   FontSize="10" 
+                                                   FontWeight="Bold" 
+                                                   HorizontalAlignment="Center" 
+                                                   VerticalAlignment="Center" />
+                                    </Border>
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding SelectedCommit.AuthorName}" Foreground="White" FontSize="11.5" FontWeight="SemiBold" />
+                                        <TextBlock Text="{Binding SelectedCommit.AuthorEmail}" Foreground="{StaticResource TextSecondary}" FontSize="10" />
+                                    </StackPanel>
+                                </StackPanel>
+
+                                <TextBlock Grid.Row="2" 
+                                           Text="{Binding SelectedCommit.Sha}" 
+                                           FontFamily="Consolas" 
+                                           FontSize="10.5" 
+                                           Foreground="{StaticResource AccentColor}" 
+                                           Margin="0,10,0,0" />
+                            </Grid>
+                        </Border>
+
+                        <!-- File list and colored diff -->
+                        <uiControls:DiffViewControl Grid.Row="1" />
+                    </Grid>
+
+                    <!-- 3. WIP Staging View (When Work in Progress is selected) -->
+                    <Grid>
+                        <Grid.Style>
+                            <Style TargetType="Grid">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedCommit.Sha}" Value="WIP">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Grid.Style>
+                        <Grid.RowDefinitions>
+                            <!-- Header / Action Title -->
+                            <RowDefinition Height="Auto" />
+                            <!-- Unstaged Files List -->
+                            <RowDefinition Height="*" />
+                            <!-- Staged Files List -->
+                            <RowDefinition Height="*" />
+                            <!-- Commit Form Box -->
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <!-- Header -->
+                        <Border Grid.Row="0" Background="#161A23" CornerRadius="4" Padding="12,8" Margin="16,12,16,0" BorderThickness="1,0,0,0" BorderBrush="#06B6D4">
+                            <TextBlock Text="STAGE &amp; COMMIT CHANGES" FontWeight="Bold" FontSize="11" Foreground="{StaticResource TextPrimary}" VerticalAlignment="Center" />
+                        </Border>
+
+                        <!-- Unstaged Files List Box -->
+                        <Grid Grid.Row="1" Margin="16,12,16,6">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            
+                            <Grid Grid.Row="0" Margin="0,0,0,6">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.Column="0" Background="#161A23" CornerRadius="4" Padding="8,4" BorderThickness="1,0,0,0" BorderBrush="#10B981" HorizontalAlignment="Left">
+                                    <TextBlock Text="UNSTAGED FILES" Foreground="{StaticResource TextPrimary}" FontSize="9.5" FontWeight="Bold" VerticalAlignment="Center" />
+                                </Border>
+                                <Button Grid.Column="1" Content="Stage All" Command="{Binding StageAllCommand}" Style="{StaticResource PremiumButtonStyle}" FontSize="10" Padding="10,4" Height="22" />
+                            </Grid>
+
+                            <ListBox Grid.Row="1" ItemsSource="{Binding UnstagedFiles}" Background="Transparent" BorderThickness="0" HorizontalContentAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto">
+                                <ListBox.ItemContainerStyle>
+                                    <Style TargetType="ListBoxItem">
+                                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                        <Setter Property="Padding" Value="6,4" />
+                                        <Setter Property="Margin" Value="0,1" />
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="ListBoxItem">
+                                                    <Border x:Name="Bd" Background="Transparent" CornerRadius="4" Padding="{TemplateBinding Padding}">
+                                                        <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                                                    </Border>
+                                                    <ControlTemplate.Triggers>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter TargetName="Bd" Property="Background" Value="#1B2230" />
+                                                        </Trigger>
+                                                    </ControlTemplate.Triggers>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </ListBox.ItemContainerStyle>
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="2,1,0,1">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0" Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets" Foreground="{StaticResource TextSecondary}" FontSize="12" Margin="2,0,8,0" VerticalAlignment="Center" />
+                                            <TextBlock Grid.Column="1" Text="{Binding}" Foreground="#E2E8F0" FontSize="11.5" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+                                            <Button Grid.Column="2" Content="+" FontFamily="Segoe UI" FontWeight="Bold" FontSize="13"
+                                                    Command="{Binding DataContext.StageFileCommand, RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}" 
+                                                    CommandParameter="{Binding}"
+                                                    Width="22" Height="22" Padding="0,0,0,2" Cursor="Hand" Margin="6,0,12,0">
+                                                <Button.Style>
+                                                    <Style TargetType="Button">
+                                                        <Setter Property="Background" Value="Transparent" />
+                                                        <Setter Property="Foreground" Value="#94A3B8" />
+                                                        <Setter Property="BorderThickness" Value="0" />
+                                                        <Setter Property="Template">
+                                                            <Setter.Value>
+                                                                <ControlTemplate TargetType="Button">
+                                                                    <Border x:Name="Bd" Background="{TemplateBinding Background}" CornerRadius="11">
+                                                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                                                    </Border>
+                                                                    <ControlTemplate.Triggers>
+                                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                                            <Setter TargetName="Bd" Property="Background" Value="#14532D" />
+                                                                            <Setter Property="Foreground" Value="#4ADE80" />
+                                                                        </Trigger>
+                                                                    </ControlTemplate.Triggers>
+                                                                </ControlTemplate>
+                                                            </Setter.Value>
+                                                        </Setter>
+                                                    </Style>
+                                                </Button.Style>
+                                            </Button>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </Grid>
+
+                        <!-- Staged Files List Box -->
+                        <Grid Grid.Row="2" Margin="16,6,16,12">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            
+                            <Grid Grid.Row="0" Margin="0,0,0,6">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.Column="0" Background="#161A23" CornerRadius="4" Padding="8,4" BorderThickness="1,0,0,0" BorderBrush="#F97316" HorizontalAlignment="Left">
+                                    <TextBlock Text="STAGED FILES" Foreground="{StaticResource TextPrimary}" FontSize="9.5" FontWeight="Bold" VerticalAlignment="Center" />
+                                </Border>
+                                <Button Grid.Column="1" Content="Unstage All" Command="{Binding UnstageAllCommand}" Style="{StaticResource PremiumButtonStyle}" FontSize="10" Padding="10,4" Height="22" />
+                            </Grid>
+
+                            <ListBox Grid.Row="1" ItemsSource="{Binding StagedFiles}" Background="Transparent" BorderThickness="0" HorizontalContentAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto">
+                                <ListBox.ItemContainerStyle>
+                                    <Style TargetType="ListBoxItem">
+                                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                        <Setter Property="Padding" Value="6,4" />
+                                        <Setter Property="Margin" Value="0,1" />
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="ListBoxItem">
+                                                    <Border x:Name="Bd" Background="Transparent" CornerRadius="4" Padding="{TemplateBinding Padding}">
+                                                        <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                                                    </Border>
+                                                    <ControlTemplate.Triggers>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter TargetName="Bd" Property="Background" Value="#1B2230" />
+                                                        </Trigger>
+                                                    </ControlTemplate.Triggers>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </ListBox.ItemContainerStyle>
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="2,1,0,1">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0" Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets" Foreground="{StaticResource TextSecondary}" FontSize="12" Margin="2,0,8,0" VerticalAlignment="Center" />
+                                            <TextBlock Grid.Column="1" Text="{Binding}" Foreground="#E2E8F0" FontSize="11.5" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+                                            <Button Grid.Column="2" Content="-" FontFamily="Segoe UI" FontWeight="Bold" FontSize="13"
+                                                    Command="{Binding DataContext.UnstageFileCommand, RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}" 
+                                                    CommandParameter="{Binding}"
+                                                    Width="22" Height="22" Padding="0,0,0,2" Cursor="Hand" Margin="6,0,12,0">
+                                                <Button.Style>
+                                                    <Style TargetType="Button">
+                                                        <Setter Property="Background" Value="Transparent" />
+                                                        <Setter Property="Foreground" Value="#94A3B8" />
+                                                        <Setter Property="BorderThickness" Value="0" />
+                                                        <Setter Property="Template">
+                                                            <Setter.Value>
+                                                                <ControlTemplate TargetType="Button">
+                                                                    <Border x:Name="Bd" Background="{TemplateBinding Background}" CornerRadius="11">
+                                                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                                                    </Border>
+                                                                    <ControlTemplate.Triggers>
+                                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                                            <Setter TargetName="Bd" Property="Background" Value="#3B181A" />
+                                                                            <Setter Property="Foreground" Value="#F87171" />
+                                                                        </Trigger>
+                                                                    </ControlTemplate.Triggers>
+                                                                </ControlTemplate>
+                                                            </Setter.Value>
+                                                        </Setter>
+                                                    </Style>
+                                                </Button.Style>
+                                            </Button>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </Grid>
+
+                        <!-- Commit Box Form -->
+                        <Border Grid.Row="3" Background="{StaticResource HeaderBackground}" BorderBrush="{StaticResource BorderColor}" BorderThickness="0,1,0,0" Padding="16,14">
+                            <StackPanel>
+                                <TextBlock Text="Commit Message" Foreground="{StaticResource TextSecondary}" FontSize="11" Margin="0,0,0,6" />
+                                
+                                <!-- Rounded Subject Field -->
+                                <Border CornerRadius="6" Background="#0A0C10" BorderBrush="{StaticResource BorderColor}" BorderThickness="1" Margin="0,0,0,8" Padding="2,0">
+                                    <TextBox Text="{Binding CommitSubject, UpdateSourceTrigger=PropertyChanged}" 
+                                             Background="Transparent" Foreground="White" BorderThickness="0" Padding="6,6" FontSize="12" CaretBrush="White" />
+                                </Border>
+                                
+                                <!-- Rounded Description Field -->
+                                <Border CornerRadius="6" Background="#0A0C10" BorderBrush="{StaticResource BorderColor}" BorderThickness="1" Margin="0,0,0,12" Padding="2,0">
+                                    <TextBox Text="{Binding CommitDescription, UpdateSourceTrigger=PropertyChanged}" 
+                                             Background="Transparent" Foreground="White" BorderThickness="0" Padding="6,6" FontSize="11" Height="60" TextWrapping="Wrap" AcceptsReturn="True" CaretBrush="White" />
+                                </Border>
+
+                                <Button Content="Commit changes" 
+                                        Command="{Binding CommitCommand}"
+                                        Style="{StaticResource PrimaryButtonStyle}"
+                                        Height="36" />
+                            </StackPanel>
+                        </Border>
                     </Grid>
                 </Grid>
             </Border>

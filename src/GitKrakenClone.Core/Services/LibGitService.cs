@@ -270,4 +270,133 @@ public class LibGitService : IGitService
     {
         CloseRepository();
     }
+
+    public (List<string> Unstaged, List<string> Staged) GetWorkingDirStatus()
+    {
+        if (_repo == null) return ([], []);
+        
+        var unstaged = new List<string>();
+        var staged = new List<string>();
+        
+        try
+        {
+            var status = _repo.RetrieveStatus();
+            foreach (var entry in status)
+            {
+                if (entry.State.HasFlag(FileStatus.ModifiedInIndex) || 
+                    entry.State.HasFlag(FileStatus.NewInIndex) || 
+                    entry.State.HasFlag(FileStatus.DeletedFromIndex) || 
+                    entry.State.HasFlag(FileStatus.RenamedInIndex) || 
+                    entry.State.HasFlag(FileStatus.TypeChangeInIndex))
+                {
+                    staged.Add(entry.FilePath);
+                }
+                else if (entry.State != FileStatus.Unaltered)
+                {
+                    unstaged.Add(entry.FilePath);
+                }
+            }
+        }
+        catch { }
+        
+        return (unstaged, staged);
+    }
+
+    public void StageFile(string filepath)
+    {
+        if (_repo == null) return;
+        Commands.Stage(_repo, filepath);
+    }
+
+    public void UnstageFile(string filepath)
+    {
+        if (_repo == null) return;
+        Commands.Unstage(_repo, filepath);
+    }
+
+    public void Commit(string message, string authorName, string authorEmail)
+    {
+        if (_repo == null) return;
+        var author = new Signature(authorName, authorEmail, DateTimeOffset.Now);
+        var committer = author;
+        _repo.Commit(message, author, committer);
+    }
+
+    public CommitDiff GetWipDiff()
+    {
+        if (_repo == null) throw new InvalidOperationException("Repository is not open.");
+        
+        var commitDiff = new CommitDiff { CommitSha = "WIP" };
+        
+        try
+        {
+            var headCommit = _repo.Head.Tip;
+            Tree? headTree = headCommit?.Tree;
+            
+            // Diff between HEAD and working directory (both staged & unstaged)
+            var diff = _repo.Diff.Compare<Patch>(headTree, DiffTargets.WorkingDirectory);
+            
+            foreach (var entry in diff)
+            {
+                var fileDiff = new FileDiff
+                {
+                    Path = entry.Path,
+                    OldPath = entry.OldPath,
+                    Status = entry.Status.ToString()
+                };
+
+                var patchString = entry.Patch;
+                if (!string.IsNullOrEmpty(patchString))
+                {
+                    fileDiff.Lines = ParseUnifiedPatch(patchString);
+                }
+
+                commitDiff.FileDiffs.Add(fileDiff);
+            }
+        }
+        catch { }
+
+        return commitDiff;
+    }
+
+    private void RunGitCommand(string arguments)
+    {
+        if (_repo == null) return;
+        var workDir = _repo.Info.WorkingDirectory;
+        
+        var startInfo = new System.Diagnostics.ProcessStartInfo
+        {
+            FileName = "git",
+            Arguments = arguments,
+            WorkingDirectory = workDir,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+            CreateNoWindow = true
+        };
+
+        using var process = System.Diagnostics.Process.Start(startInfo);
+        if (process == null) return;
+        process.WaitForExit();
+        if (process.ExitCode != 0)
+        {
+            var err = process.StandardError.ReadToEnd();
+            throw new Exception(err);
+        }
+    }
+
+    public void Push()
+    {
+        RunGitCommand("push");
+    }
+
+    public void Pull()
+    {
+        RunGitCommand("pull");
+    }
+
+    public void Fetch()
+    {
+        RunGitCommand("fetch");
+    }
 }

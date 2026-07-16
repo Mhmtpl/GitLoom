@@ -16,4 +16,16 @@ public interface IGitService : IDisposable
     List<string> GetRemoteBranches();
     List<string> GetTags();
     string? GetCurrentBranchName();
+    
+    // Working Directory & Staging API
+    (List<string> Unstaged, List<string> Staged) GetWorkingDirStatus();
+    void StageFile(string filepath);
+    void UnstageFile(string filepath);
+    void Commit(string message, string authorName, string authorEmail);
+    CommitDiff GetWipDiff();
+    
+    // Remote Operations
+    void Push();
+    void Pull();
+    void Fetch();
 }

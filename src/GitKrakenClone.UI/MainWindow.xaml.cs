@@ -48,11 +48,8 @@ public partial class MainWindow : Window
     private void ListScrollViewer_ScrollChanged(object sender, ScrollChangedEventArgs e)
     {
         // Forward scroll changes to the Skia graph control
-        if (e.VerticalChange != 0 || e.ViewportHeightChange != 0)
-        {
-            GraphControl.VerticalScrollOffset = e.VerticalOffset;
-            GraphControl.ViewportHeight = e.ViewportHeight;
-        }
+        GraphControl.VerticalScrollOffset = e.VerticalOffset;
+        GraphControl.ViewportHeight = e.ViewportHeight;
     }
 
     private ScrollViewer? FindScrollViewer(DependencyObject parent)

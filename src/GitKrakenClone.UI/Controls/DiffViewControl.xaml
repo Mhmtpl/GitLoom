@@ -9,20 +9,20 @@
              d:DesignHeight="600" d:DesignWidth="400">
     <UserControl.Resources>
         <!-- Premium dark theme palette -->
-        <SolidColorBrush x:Key="EditorBackground" Color="#0C0C0E" />
-        <SolidColorBrush x:Key="LineNumBackground" Color="#121214" />
+        <SolidColorBrush x:Key="EditorBackground" Color="#12151C" />
+        <SolidColorBrush x:Key="LineNumBackground" Color="#0A0C10" />
         
-        <SolidColorBrush x:Key="HeaderBackground" Color="#1D1D2C" />
-        <SolidColorBrush x:Key="HeaderForeground" Color="#A78BFA" />
+        <SolidColorBrush x:Key="HeaderBackground" Color="#161A23" />
+        <SolidColorBrush x:Key="HeaderForeground" Color="#06B6D4" />
         
-        <SolidColorBrush x:Key="AddedBackground" Color="#0F241A" />
+        <SolidColorBrush x:Key="AddedBackground" Color="#112E22" />
         <SolidColorBrush x:Key="AddedForeground" Color="#4ADE80" />
         
-        <SolidColorBrush x:Key="DeletedBackground" Color="#2D1317" />
+        <SolidColorBrush x:Key="DeletedBackground" Color="#3D1619" />
         <SolidColorBrush x:Key="DeletedForeground" Color="#F87171" />
         
-        <SolidColorBrush x:Key="ContextForeground" Color="#E4E4E7" />
-        <SolidColorBrush x:Key="LineNumberForeground" Color="#52525B" />
+        <SolidColorBrush x:Key="ContextForeground" Color="#F8FAFC" />
+        <SolidColorBrush x:Key="LineNumberForeground" Color="#475569" />
         
         <!-- Files list styling -->
         <Style x:Key="FileListBoxStyle" TargetType="ListBox">
@@ -30,29 +30,29 @@
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="Padding" Value="0" />
             <Style.Resources>
-                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#27272A" />
-                <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#1F1F22" />
+                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Transparent" />
+                <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="Transparent" />
             </Style.Resources>
         </Style>
     </UserControl.Resources>
     
-    <Grid Background="#151517">
+    <Grid Background="#0A0C10">
         <Grid.RowDefinitions>
             <!-- 0: Files Changed Title -->
             <RowDefinition Height="Auto" />
             <!-- 1: Files List Box (resizable) -->
             <RowDefinition Height="120" MinHeight="80" MaxHeight="300" />
-            <!-- 2: Splitter -->
-            <RowDefinition Height="4" />
+            <!-- 2: Splitter (1px hairline) -->
+            <RowDefinition Height="1" />
             <!-- 3: Diff View Lines -->
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
         <!-- 0. Files Header -->
-        <Border Grid.Row="0" Background="#1E1E20" Padding="12,8" BorderBrush="#27272A" BorderThickness="0,0,0,1">
+        <Border Grid.Row="0" Background="#161A23" Padding="12,8" BorderBrush="#1E2330" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                <TextBlock Text="FILES CHANGED" Foreground="#A1A1AA" FontSize="10" FontWeight="Bold" />
-                <Border Background="#27272A" CornerRadius="8" Padding="6,1" Margin="8,0,0,0" VerticalAlignment="Center">
+                <TextBlock Text="FILES CHANGED" Foreground="#94A3B8" FontSize="10" FontWeight="Bold" />
+                <Border Background="#1E2330" CornerRadius="8" Padding="6,1" Margin="8,0,0,0" VerticalAlignment="Center">
                     <TextBlock Text="{Binding SelectedFileDiffs.Count, FallbackValue=0}" Foreground="White" FontSize="10" FontWeight="Bold" />
                 </Border>
             </StackPanel>
@@ -63,7 +63,7 @@
                  ItemsSource="{Binding SelectedFileDiffs}"
                  SelectedItem="{Binding SelectedFile}"
                  Style="{StaticResource FileListBoxStyle}"
-                 Background="#151517"
+                 Background="#0A0C10"
                  ScrollViewer.VerticalScrollBarVisibility="Auto">
             <ListBox.ItemContainerStyle>
                 <Style TargetType="ListBoxItem">
@@ -88,10 +88,10 @@
                                 </Border>
                                 <ControlTemplate.Triggers>
                                     <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter TargetName="Bd" Property="Background" Value="#222226" />
+                                        <Setter TargetName="Bd" Property="Background" Value="#1B2230" />
                                     </Trigger>
                                     <Trigger Property="IsSelected" Value="True">
-                                        <Setter TargetName="Bd" Property="Background" Value="#2A2A30" />
+                                        <Setter TargetName="Bd" Property="Background" Value="#23324E" />
                                     </Trigger>
                                 </ControlTemplate.Triggers>
                             </ControlTemplate>
@@ -111,7 +111,7 @@
                         <Border Grid.Column="0" Width="18" Height="18" CornerRadius="9" Margin="0,0,10,0" HorizontalAlignment="Center" VerticalAlignment="Center">
                             <Border.Style>
                                 <Style TargetType="Border">
-                                    <Setter Property="Background" Value="#2A2A2F" />
+                                    <Setter Property="Background" Value="#1E2330" />
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding Status}" Value="Added">
                                             <Setter Property="Background" Value="#153020" />
@@ -157,12 +157,16 @@
             </ListBox.ItemTemplate>
         </ListBox>
 
-        <!-- 2. Grid Splitter -->
+        <!-- 2. Divider Separator Line -->
+        <Border Grid.Row="2" Height="1" Background="#1E2330" HorizontalAlignment="Stretch" VerticalAlignment="Center" />
+        <!-- 2. Grid Splitter (Transparent Grab Zone) -->
         <GridSplitter Grid.Row="2" 
-                      Height="4" 
+                      Height="5" 
+                      Margin="0,-2"
                       HorizontalAlignment="Stretch" 
                       VerticalAlignment="Stretch" 
-                      Background="#27272A" 
+                      Background="Transparent" 
+                      ShowsPreview="True"
                       Cursor="SizeNS" />
 
         <!-- 3. Diff View Lines Container -->
@@ -173,7 +177,7 @@
             </Grid.RowDefinitions>
 
             <!-- Current File Header inside Editor -->
-            <Border Grid.Row="0" Background="#151517" Padding="12,6" BorderBrush="#27272A" BorderThickness="0,0,0,1">
+            <Border Grid.Row="0" Background="#161A23" Padding="12,6" BorderBrush="#1E2330" BorderThickness="0,0,0,1">
                 <TextBlock Text="{Binding SelectedFile.Path, FallbackValue='Select a file'}" 
                            Foreground="#D4D4D8" 
                            FontSize="11" 
@@ -224,7 +228,7 @@
                             </Grid.ColumnDefinitions>
 
                             <!-- Old Line Number -->
-                            <Border Grid.Column="0" Background="{StaticResource LineNumBackground}" BorderBrush="#1C1C1E" BorderThickness="0,0,1,0" Padding="0,0,6,0">
+                            <Border Grid.Column="0" Background="{StaticResource LineNumBackground}" BorderBrush="#1A1D24" BorderThickness="0,0,1,0" Padding="0,0,6,0">
                                 <TextBlock Text="{Binding OldLineNumber}" 
                                            Foreground="{StaticResource LineNumberForeground}" 
                                            FontSize="10.5" 
@@ -234,7 +238,7 @@
                             </Border>
 
                             <!-- New Line Number -->
-                            <Border Grid.Column="1" Background="{StaticResource LineNumBackground}" BorderBrush="#1C1C1E" BorderThickness="0,0,1,0" Padding="0,0,6,0">
+                            <Border Grid.Column="1" Background="{StaticResource LineNumBackground}" BorderBrush="#1A1D24" BorderThickness="0,0,1,0" Padding="0,0,6,0">
                                 <TextBlock Text="{Binding NewLineNumber}" 
                                            Foreground="{StaticResource LineNumberForeground}" 
                                            FontSize="10.5" 

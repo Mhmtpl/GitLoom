@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
 using SkiaSharp;
 using SkiaSharp.Views.WPF;
 using SkiaSharp.Views.Desktop;
@@ -13,16 +14,14 @@ public class CommitGraphControl : SKElement
 {
     private static readonly SKColor[] LaneColors =
     [
-        SKColor.Parse("#FF4B5C"), // Vibrant red/pink
-        SKColor.Parse("#3B82F6"), // Blue
-        SKColor.Parse("#10B981"), // Emerald green
-        SKColor.Parse("#F59E0B"), // Amber yellow
-        SKColor.Parse("#8B5CF6"), // Violet
-        SKColor.Parse("#EC4899"), // Pink
-        SKColor.Parse("#06B6D4"), // Cyan
-        SKColor.Parse("#14B8A6"), // Teal
-        SKColor.Parse("#F97316"), // Orange
-        SKColor.Parse("#6366F1")  // Indigo
+        SKColor.Parse("#FF3B30"), // Vibrant Pink-Red
+        SKColor.Parse("#007AFF"), // Vibrant Blue
+        SKColor.Parse("#34C759"), // Vibrant Green
+        SKColor.Parse("#FF9500"), // Vibrant Orange
+        SKColor.Parse("#AF52DE"), // Vibrant Purple
+        SKColor.Parse("#5AC8FA"), // Vibrant Light Blue
+        SKColor.Parse("#FFCC00"), // Vibrant Yellow
+        SKColor.Parse("#FF2D55")  // Vibrant Hot Pink
     ];
 
     private static readonly SKColor DarkBgColor = SKColor.Parse("#1E1E24");
@@ -167,7 +166,13 @@ public class CommitGraphControl : SKElement
         int startRow = Math.Max(0, (int)(scrollY / rHeight) - 1);
         int endRow = Math.Min(totalRows - 1, (int)((scrollY + viewH) / rHeight) + 1);
 
+        // Get DPI scale factor
+        var dpi = VisualTreeHelper.GetDpi(this);
+        float scaleX = (float)dpi.DpiScaleX;
+        float scaleY = (float)dpi.DpiScaleY;
+
         canvas.Save();
+        canvas.Scale(scaleX, scaleY);
         canvas.Translate(0, -(float)scrollY);
 
         // Draw Edges First (so nodes sit on top)
@@ -238,8 +243,8 @@ public class CommitGraphControl : SKElement
         using var nodeBorderPaint = new SKPaint
         {
             Style = SKPaintStyle.Stroke,
-            Color = SKColors.White,
-            StrokeWidth = 1.8f,
+            Color = SKColor.Parse("#1D212A"), // Matches AppBackground for perfect halo
+            StrokeWidth = 2.0f,
             IsAntialias = true
         };
         using var glowPaint = new SKPaint
@@ -287,11 +292,26 @@ public class CommitGraphControl : SKElement
             if (isHovered) radius = 7.0f;
             else if (isSelected) radius = 6.5f;
 
-            nodeFillPaint.Color = GetLaneColor(node.Lane);
-            
-            // Draw node body
-            canvas.DrawCircle(x, y, radius, nodeFillPaint);
-            canvas.DrawCircle(x, y, radius, nodeBorderPaint);
+            if (node.Sha == "WIP")
+            {
+                using var wipBorderPaint = new SKPaint
+                {
+                    Style = SKPaintStyle.Stroke,
+                    Color = GetLaneColor(node.Lane),
+                    StrokeWidth = 2.2f,
+                    PathEffect = SKPathEffect.CreateDash([3.0f, 2.5f], 0.0f),
+                    IsAntialias = true
+                };
+                nodeFillPaint.Color = SKColor.Parse("#1D212A");
+                canvas.DrawCircle(x, y, radius, nodeFillPaint);
+                canvas.DrawCircle(x, y, radius, wipBorderPaint);
+            }
+            else
+            {
+                nodeFillPaint.Color = GetLaneColor(node.Lane);
+                canvas.DrawCircle(x, y, radius, nodeFillPaint);
+                canvas.DrawCircle(x, y, radius, nodeBorderPaint);
+            }
 
             // Draw HEAD indicator (inner dot or outer ring)
             if (isHead)
