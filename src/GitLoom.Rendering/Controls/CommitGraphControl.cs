@@ -89,6 +89,26 @@ public class CommitGraphControl : SKElement
         DependencyProperty.Register(nameof(DeleteBranchCommand), typeof(ICommand), typeof(CommitGraphControl),
             new PropertyMetadata(null));
 
+    public static readonly DependencyProperty ResetCommandProperty =
+        DependencyProperty.Register(nameof(ResetCommand), typeof(ICommand), typeof(CommitGraphControl),
+            new PropertyMetadata(null));
+
+    public static readonly DependencyProperty RevertCommandProperty =
+        DependencyProperty.Register(nameof(RevertCommand), typeof(ICommand), typeof(CommitGraphControl),
+            new PropertyMetadata(null));
+
+    public static readonly DependencyProperty CherryPickCommandProperty =
+        DependencyProperty.Register(nameof(CherryPickCommand), typeof(ICommand), typeof(CommitGraphControl),
+            new PropertyMetadata(null));
+
+    public static readonly DependencyProperty CreateTagCommandProperty =
+        DependencyProperty.Register(nameof(CreateTagCommand), typeof(ICommand), typeof(CommitGraphControl),
+            new PropertyMetadata(null));
+
+    public static readonly DependencyProperty CheckoutCommitCommandProperty =
+        DependencyProperty.Register(nameof(CheckoutCommitCommand), typeof(ICommand), typeof(CommitGraphControl),
+            new PropertyMetadata(null));
+
     public CommitGraphLayout? Layout
     {
         get => (CommitGraphLayout?)GetValue(LayoutProperty);
@@ -129,6 +149,36 @@ public class CommitGraphControl : SKElement
     {
         get => (ICommand?)GetValue(DeleteBranchCommandProperty);
         set => SetValue(DeleteBranchCommandProperty, value);
+    }
+
+    public ICommand? ResetCommand
+    {
+        get => (ICommand?)GetValue(ResetCommandProperty);
+        set => SetValue(ResetCommandProperty, value);
+    }
+
+    public ICommand? RevertCommand
+    {
+        get => (ICommand?)GetValue(RevertCommandProperty);
+        set => SetValue(RevertCommandProperty, value);
+    }
+
+    public ICommand? CherryPickCommand
+    {
+        get => (ICommand?)GetValue(CherryPickCommandProperty);
+        set => SetValue(CherryPickCommandProperty, value);
+    }
+
+    public ICommand? CreateTagCommand
+    {
+        get => (ICommand?)GetValue(CreateTagCommandProperty);
+        set => SetValue(CreateTagCommandProperty, value);
+    }
+
+    public ICommand? CheckoutCommitCommand
+    {
+        get => (ICommand?)GetValue(CheckoutCommitCommandProperty);
+        set => SetValue(CheckoutCommitCommandProperty, value);
     }
 
     public double RowHeight
@@ -564,9 +614,49 @@ public class CommitGraphControl : SKElement
             menu.Items.Add(new System.Windows.Controls.Separator { Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#3E4452")) });
         }
 
+        // Reset Submenu
+        var resetItem = new System.Windows.Controls.MenuItem { Header = "Reset current branch to this commit", Foreground = System.Windows.Media.Brushes.White };
+        resetItem.Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#1E1E24"));
+
+        var softItem = new System.Windows.Controls.MenuItem { Header = "Soft (keep changes, stage all)", Foreground = System.Windows.Media.Brushes.White };
+        softItem.Click += (s, e) => ResetCommand?.Execute(Tuple.Create(sha, "soft"));
+        resetItem.Items.Add(softItem);
+
+        var mixedItem = new System.Windows.Controls.MenuItem { Header = "Mixed (keep changes, unstage all)", Foreground = System.Windows.Media.Brushes.White };
+        mixedItem.Click += (s, e) => ResetCommand?.Execute(Tuple.Create(sha, "mixed"));
+        resetItem.Items.Add(mixedItem);
+
+        var hardItem = new System.Windows.Controls.MenuItem { Header = "Hard (discard all changes)", Foreground = System.Windows.Media.Brushes.White };
+        hardItem.Click += (s, e) => ResetCommand?.Execute(Tuple.Create(sha, "hard"));
+        resetItem.Items.Add(hardItem);
+        menu.Items.Add(resetItem);
+
+        // Revert Commit
+        var revertItem = new System.Windows.Controls.MenuItem { Header = $"Revert commit '{sha.Substring(0, 7)}'", Foreground = System.Windows.Media.Brushes.White };
+        revertItem.Click += (s, e) => RevertCommand?.Execute(sha);
+        menu.Items.Add(revertItem);
+
+        // Cherry-pick Commit
+        var cherryItem = new System.Windows.Controls.MenuItem { Header = $"Cherry-pick commit '{sha.Substring(0, 7)}'", Foreground = System.Windows.Media.Brushes.White };
+        cherryItem.Click += (s, e) => CherryPickCommand?.Execute(sha);
+        menu.Items.Add(cherryItem);
+
+        // Checkout Commit (detached head)
+        var checkoutCommitItem = new System.Windows.Controls.MenuItem { Header = "Checkout commit (Detached HEAD)", Foreground = System.Windows.Media.Brushes.White };
+        checkoutCommitItem.Click += (s, e) => CheckoutCommitCommand?.Execute(sha);
+        menu.Items.Add(checkoutCommitItem);
+
+        menu.Items.Add(new System.Windows.Controls.Separator { Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#3E4452")) });
+
+        // Create Branch Here
         var createBranchItem = new System.Windows.Controls.MenuItem { Header = "Create branch here...", Foreground = System.Windows.Media.Brushes.White };
         createBranchItem.Click += (s, e) => CreateBranchCommand?.Execute(sha);
         menu.Items.Add(createBranchItem);
+
+        // Create Tag Here
+        var createTagItem = new System.Windows.Controls.MenuItem { Header = "Create tag here...", Foreground = System.Windows.Media.Brushes.White };
+        createTagItem.Click += (s, e) => CreateTagCommand?.Execute(sha);
+        menu.Items.Add(createTagItem);
 
         menu.IsOpen = true;
     }
@@ -732,6 +822,20 @@ public class CommitGraphControl : SKElement
             }
 
             _dragStartNode = null;
+            e.Handled = true;
+        }
+    }
+
+    protected override void OnMouseRightButtonDown(MouseButtonEventArgs e)
+    {
+        base.OnMouseRightButtonDown(e);
+        if (Layout == null || Layout.Nodes.Count == 0) return;
+
+        var pos = e.GetPosition(this);
+        var clickedNode = HitTestNode(pos);
+        if (clickedNode != null)
+        {
+            ShowRightClickMenu(clickedNode, PointToScreen(pos));
             e.Handled = true;
         }
     }

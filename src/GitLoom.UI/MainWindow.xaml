@@ -10,6 +10,7 @@
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type=vm:MainViewModel}"
         Title="GitLoom - Premium Git Client" Height="750" Width="1200"
+        Icon="gitloom_logo.png"
         Background="#0A0C10" Foreground="#F8FAFC"
         Loaded="Window_Loaded">
     
@@ -433,6 +434,11 @@
                                              RebaseBranchCommand="{Binding RebaseBranchCommand}"
                                              CreateBranchCommand="{Binding CreateBranchCommand}"
                                              DeleteBranchCommand="{Binding DeleteBranchCommand}"
+                                             ResetCommand="{Binding ResetCommand}"
+                                             RevertCommand="{Binding RevertCommand}"
+                                             CherryPickCommand="{Binding CherryPickCommand}"
+                                             CreateTagCommand="{Binding CreateTagCommand}"
+                                             CheckoutCommitCommand="{Binding CheckoutCommitCommand}"
                                              SelectedSha="{Binding SelectedSha, Mode=TwoWay}"
                                              HeadSha="{Binding HeadSha}"
                                              RowHeight="{Binding RowHeight}"

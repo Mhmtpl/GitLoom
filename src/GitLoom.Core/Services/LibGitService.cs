@@ -424,4 +424,29 @@ public class LibGitService : IGitService
     {
         RunGitCommand($"branch -d {branchName}");
     }
+
+    public void Reset(string sha, string mode)
+    {
+        RunGitCommand($"reset --{mode.ToLower()} {sha}");
+    }
+
+    public void Revert(string sha)
+    {
+        RunGitCommand($"revert --no-edit {sha}");
+    }
+
+    public void CherryPick(string sha)
+    {
+        RunGitCommand($"cherry-pick {sha}");
+    }
+
+    public void CreateTag(string tagName, string sha)
+    {
+        RunGitCommand($"tag {tagName} {sha}");
+    }
+
+    public void CheckoutCommit(string sha)
+    {
+        RunGitCommand($"checkout {sha}");
+    }
 }

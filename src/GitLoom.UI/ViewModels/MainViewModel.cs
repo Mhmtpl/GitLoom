@@ -213,6 +213,12 @@ public class MainViewModel : ObservableObject
     public ICommand CreateBranchCommand { get; }
     public ICommand DeleteBranchCommand { get; }
 
+    public ICommand ResetCommand { get; }
+    public ICommand RevertCommand { get; }
+    public ICommand CherryPickCommand { get; }
+    public ICommand CreateTagCommand { get; }
+    public ICommand CheckoutCommitCommand { get; }
+
     public MainViewModel(IGitService gitService)
     {
         _gitService = gitService;
@@ -234,6 +240,12 @@ public class MainViewModel : ObservableObject
         RebaseBranchCommand = new RelayCommand<Tuple<string, string>>(RebaseBranch);
         CreateBranchCommand = new RelayCommand<string>(CreateBranchAt);
         DeleteBranchCommand = new RelayCommand<string>(DeleteBranch);
+
+        ResetCommand = new RelayCommand<Tuple<string, string>>(ResetToCommit);
+        RevertCommand = new RelayCommand<string>(RevertCommit);
+        CherryPickCommand = new RelayCommand<string>(CherryPickCommit);
+        CreateTagCommand = new RelayCommand<string>(CreateTagAt);
+        CheckoutCommitCommand = new RelayCommand<string>(CheckoutCommit);
     }
 
     private void OpenRepository()
@@ -639,12 +651,91 @@ public class MainViewModel : ObservableObject
         buttonPanel.Children.Add(okButton);
         buttonPanel.Children.Add(cancelButton);
         grid.Children.Add(buttonPanel);
-
         window.Content = grid;
         if (window.ShowDialog() == true)
         {
             return textBox.Text.Trim();
         }
         return null;
+    }
+
+    private void ResetToCommit(Tuple<string, string>? info)
+    {
+        if (info == null) return;
+        var sha = info.Item1;
+        var mode = info.Item2;
+        try
+        {
+            var result = System.Windows.MessageBox.Show($"Are you sure you want to perform a {mode.ToUpper()} reset of the current branch to commit {sha.Substring(0, 7)}?\n\nWARNING: Hard reset will discard all uncommitted changes.", "Confirm Reset", System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Warning);
+            if (result == System.Windows.MessageBoxResult.Yes)
+            {
+                _gitService.Reset(sha, mode);
+                LoadRepository(RepositoryPath);
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Windows.MessageBox.Show($"Reset failed: {ex.Message}", "Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+        }
+    }
+
+    private void RevertCommit(string? sha)
+    {
+        if (string.IsNullOrEmpty(sha)) return;
+        try
+        {
+            _gitService.Revert(sha);
+            LoadRepository(RepositoryPath);
+            System.Windows.MessageBox.Show("Revert commit created successfully.", "Success", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
+        }
+        catch (Exception ex)
+        {
+            System.Windows.MessageBox.Show($"Revert failed: {ex.Message}", "Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+        }
+    }
+
+    private void CherryPickCommit(string? sha)
+    {
+        if (string.IsNullOrEmpty(sha)) return;
+        try
+        {
+            _gitService.CherryPick(sha);
+            LoadRepository(RepositoryPath);
+            System.Windows.MessageBox.Show("Cherry-pick completed successfully.", "Success", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
+        }
+        catch (Exception ex)
+        {
+            System.Windows.MessageBox.Show($"Cherry-pick failed: {ex.Message}", "Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+        }
+    }
+
+    private void CreateTagAt(string? sha)
+    {
+        if (string.IsNullOrEmpty(sha)) return;
+        var tagName = ShowInputDialog("Create Tag", "Enter tag name:", "");
+        if (string.IsNullOrEmpty(tagName)) return;
+        try
+        {
+            _gitService.CreateTag(tagName, sha);
+            LoadRepository(RepositoryPath);
+        }
+        catch (Exception ex)
+        {
+            System.Windows.MessageBox.Show($"Create tag failed: {ex.Message}", "Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+        }
+    }
+
+    private void CheckoutCommit(string? sha)
+    {
+        if (string.IsNullOrEmpty(sha)) return;
+        try
+        {
+            _gitService.CheckoutCommit(sha);
+            LoadRepository(RepositoryPath);
+        }
+        catch (Exception ex)
+        {
+            System.Windows.MessageBox.Show($"Checkout commit failed: {ex.Message}", "Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+        }
     }
 }
